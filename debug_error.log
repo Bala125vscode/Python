@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "E:\Python\LatexConverter\app\main.py", line 59, in upload_file
+    converted_str = converter.convert(content_str)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Python\LatexConverter\app\converter.py", line 428, in convert
+    arg, end = self._extract_braced_content(text, j)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'LatexConverter' object has no attribute '_extract_braced_content'

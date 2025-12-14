@@ -1,0 +1,23 @@
+\documentclass{article}
+
+% Load the siunitx package in the preamble
+\usepackage{siunitx} 
+
+% Optional: Configure options like using a comma as a decimal separator
+% \sisetup{output-decimal-marker={,}} 
+
+\begin{document}
+
+\section*{Example Quantities}
+
+\noindent
+The resistance of the component is \qty{4.7}{\kilo\ohm}. \\
+The acceleration due to gravity is approximately \qty{9.8}{\meter\per\second\squared}. \\
+The temperature is \qty{25}{\degreeCelsius}. \\
+The frequency is \qty{1.2}{\mega\hertz} (note the correct capitalization). \\
+A range of values can be expressed as \qtyrange{0.4}{2.5}{\centi\meter}.
+\unit{\henry\tothe{5}} \\
+\unit{\raiseto{4.5}\radian}
+\unit{\per\henry\tothe{5}} \\
+\unit{\per\square\becquerel}
+

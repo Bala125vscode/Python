@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaTeX Package Converter</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--background);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .converter-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .converter-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .editor-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            /* Monospace for code */
+            font-size: 0.9rem;
+            resize: vertical;
+            background-color: #fca5a51a;
+            /* Slight hint for input */
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+        }
+
+        textarea[readonly] {
+            background-color: #dcfce71a;
+            /* Slight hint for output */
+            color: var(--text-muted);
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 3rem;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+            box-shadow: 0 4px 6px -1px var(--primary);
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .diff-view {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            overflow-x: auto;
+        }
+
+        /* Customizing the difflib table */
+        table.diff {
+            font-family: 'Fira Code', monospace;
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        table.diff td {
+            padding: 0.25rem 0.5rem;
+            white-space: pre-wrap;
+        }
+
+        .diff_header {
+            background-color: #f1f5f9;
+            color: var(--text-muted);
+            text-align: right;
+            padding-right: 0.5rem;
+            border-right: 1px solid var(--border);
+            width: 30px;
+        }
+
+        .diff_next {
+            display: none;
+            /* Hide confusing links */
+        }
+
+        .diff_add {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .diff_chg {
+            background-color: #fef9c3;
+            color: #854d0e;
+        }
+
+        .diff_sub {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>LaTeX Converter</h1>
+            <p class="subtitle">Convert siunitx and physics packages to standard LaTeX</p>
+        </header>
+
+        <div class="converter-grid">
+            <div class="editor-box">
+                <form action="/convert" method="post" id="text-form">
+                    <label for="input">Input Code (siunitx/physics)</label>
+                    <textarea id="input" name="code" placeholder="\qty{10}{\meter} ...">{{ original_code }}</textarea>
+                    <div class="actions" style="margin-top: 1rem; margin-bottom: 0;">
+                        <button type="submit">Convert Code</button>
+                    </div>
+                </form>
+            </div>
+            <div class="editor-box">
+                <label for="output">Converted (Standard LaTeX)</label>
+                <textarea id="output" readonly placeholder="Output will appear here...">{{ converted_code }}</textarea>
+            </div>
+        </div>
+
+        <div class="upload-section"
+            style="text-align: center; margin-bottom: 3rem; padding: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;">
+            <h3>Or Upload a File</h3>
+            <form action="/upload" method="post" enctype="multipart/form-data"
+                style="display: flex; gap: 1rem; justify-content: center; align-items: center;">
+                <input type="file" name="file" accept=".tex" required
+                    style="padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px;">
+                <button type="submit" style="padding: 0.7rem 1.5rem;">Upload & Convert</button>
+            </form>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">Upload a .tex file to get a ZIP
+                with converted code and diff.</p>
+        </div>
+
+        {% if diff_html %}
+        <div class="diff-view">
+            <h3>Changes Diff</h3>
+            {{ diff_html | safe }}
+        </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>
