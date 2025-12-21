@@ -3,3 +3,9 @@ Original:
 $\num{5408} - \num{4025.56} =  \qty{1382.44}{\kilo\electronvolt}$. 
 converted:
 $$5408$ - $4025.56$ =  $1382.44\,\mathrm{keV}$$
+
+\Mathrm is missing in the below instances.
+Original:
+Where \(  n(t)\) has the dimension of neutron density (\unit{n/cm^3}) and  $g(\bm{r})$  has the dimension of a motion  (\unit{cm/s}).
+Converted:
+Where \(  n(t)\) has the dimension of neutron density ($n/cm^3$) and  $g(\bm{r})$  has the dimension of a motion  ($cm/s$).
