@@ -1,0 +1,5 @@
+Tool added additional $ when it is already provided as a inline equation
+Original:
+$\num{5408} - \num{4025.56} =  \qty{1382.44}{\kilo\electronvolt}$. 
+converted:
+$$5408$ - $4025.56$ =  $1382.44\,\mathrm{keV}$$
