@@ -1,0 +1,3 @@
+Enhance the Latex Chem converter app addressing the files in the Input_Chem_Package folder. User may added the below info in the preamble part of the Latex file: \usepackage[version=4]{mhchem} \usepackage[version=4,arrows=pgf-filled,textfontname=sffamily]{mhchem} \mhchemoptions{arrows=pgf-filled,textfontname=sffamily}
+
+Consider these this update tool accordingly. Ensure that there is no content loss. Can you also provide a report tool no. of instances when chem package is used and total no. of instances converted.
