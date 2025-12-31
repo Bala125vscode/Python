@@ -1,0 +1,3406 @@
+\documentclass[runningheads]{llncs}
+%
+%%%% PACKAGES %%%%
+
+\usepackage[linesnumbered,ruled,lined,noend]{algorithm2e}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\AtEndPreamble{%
+\usepackage[capitalise,noabbrev,nameinlink]{cleveref}
+\crefname{footnote}{footnote}{footnotes}
+\crefname{page}{page}{pages}
+\crefname{line}{line}{lines}
+
+
+\newlist{rquest}{enumerate}{1}
+\setlist*[rquest]{label={Q\arabic{rquesti}:},ref={Q\arabic{rquesti}}}
+\crefname{rquesti}{Research Question}{Research Questions}
+\Crefname{rquesti}{Research Question}{Research Questions}
+}%
+
+
+
+\usepackage[normalem]{ulem}
+
+\usepackage{enumitem}
+
+\usepackage{float}
+
+\usepackage[prefix,abbreviations]{glossaries-extra}
+
+\usepackage{colortbl}
+
+\usepackage{booktabs,tabularx,widetable}
+\usepackage{multirow,makecell}
+\usepackage{multirow}
+
+\usepackage{pdflscape}
+\usepackage{afterpage}
+
+\usepackage{siunitx}
+
+\usepackage{changepage}
+
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,calc,backgrounds}
+\usetikzlibrary{snakes,arrows,shapes,positioning}
+
+\usepackage{caption}
+\usepackage{subcaption}
+
+
+% fix line references in cref
+\makeatletter
+\renewcommand{\nllabel}[1]
+ {{\let\@currentlabel\algocf@currentlabel
+  \let\@currentcounter\algocf@currentcounter
+  \label{#1}}}%
+
+\renewcommand{\algocf@nl@sethref}[1]{%
+  \renewcommand{\theHAlgoLine}{\thealgocfproc.#1}%
+  \hyper@refstepcounter{AlgoLine}%
+  \gdef\algocf@currentlabel{#1}%
+  \gdef\algocf@currentcounter{AlgoLine}%
+ }%
+\makeatother
+
+
+\makeatletter
+\newcommand{\@chapapp}{\relax}%
+\makeatother
+\usepackage[title,toc,titletoc,header]{appendix}
+
+
+%%%% MACRO DEFINITIONS %%%%
+\newcommand{\F}{\ensuremath{\mathbb{F}}}
+\newcommand{\Fq}[1]{\ensuremath{\mathbb{F}_{q}^{#1}}}
+
+\newcommand{\mat}[1]{\mathbf{#1}}
+
+\newcommand{\mesg}{\ensuremath{\mathsf{msg}}\xspace}
+\newcommand{\signedmessage}{\ensuremath{\mathsf{msg}_\mathsf{sig}}\xspace}
+
+\newcommand{\lseed}{{\ell_\textsf{tree\_seed}}}
+\newcommand{\lpubseed}{{\ell_\textsf{pub\_seed}}}
+\newcommand{\lprivseed}{{\ell_\textsf{sec\_seed}}}
+\newcommand{\lmu}{{\ell_{\Fq{m \times m}}}}
+\newcommand{\lnu}{{\ell_{\Fq{n \times n}}}}
+\newcommand{\lsalt}{{\ell_\textsf{salt}}}
+\newcommand{\ldigest}{{\ell_\textsf{digest}}}
+
+\newcommand{\mmperf}{\ensuremath{p_\text{mm}}\xspace}
+\newcommand{\pipmperf}{\ensuremath{p_{\pi\text{pm}}}\xspace}
+\newcommand{\pimmperf}{\ensuremath{p_{\pi\text{mm}}}\xspace}
+
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\D}{\mathcal{D}}
+
+\newcommand{\Ts}{\mathsf}
+
+\newcommand{\typeA}{\Fq{m \times m}}
+\newcommand{\typeB}{\Fq{n \times n}}
+\newcommand{\typeAinv}{\operatorname{GL}_m(q)}
+\newcommand{\typeBinv}{\operatorname{GL}_n(q)}
+\newcommand{\typeG}{\Fq{k \times mn}}
+
+\newcommand{\GLmq}{\operatorname{GL}_m(q)}
+\newcommand{\GLnq}{\operatorname{GL}_n(q)}
+
+\newcommand{\medspi}[3]{\pi_{#1, #2}(#3)}
+
+\newcommand{\pk}{\ensuremath{\Ts{pk}}\xspace}
+\newcommand{\sk}{\ensuremath{\Ts{sk}}\xspace}
+\newcommand{\sig}{\textsf{sig}}
+
+\newcommand{\ExpandSystMat}{\mathsf{ExpandSystMat}}
+\newcommand{\ExpandInvMat}{\mathsf{ExpandInvMat}}
+\newcommand{\ParseHash}{\mathsf{ParseHash}_{s,t,w}}
+\newcommand{\compress}{\mathsf{Compress}}
+\newcommand{\decompress}{\mathsf{Decompress}}
+\newcommand{\randombytes}{\mathsf{Randombytes}}
+\newcommand{\XOF}{\mathsf{XOF}}
+\newcommand{\SeedTree}{\mathsf{SeedTree}}
+\newcommand{\SeedTreeToPath}{\mathsf{SeedTreeToPath}}
+\newcommand{\ToBytes}{\mathsf{ToBytes}}
+\newcommand{\SF}{\mathsf{SF}}
+\newcommand{\Hash}{\mathsf{H}}
+
+\newcommand{\decompressG}{\mathsf{DecompressG}}
+\newcommand{\lpath}{{\ell_\spath}}
+\newcommand{\lsig}{{\ell_\textsf{sig}}}
+\newcommand{\PathToSeedTree}{\mathsf{PathToSeedTree}}
+
+\newcommand{\spath}{\textsf{path}}
+
+\newcommand{\sw}{\ensuremath{S_1}\xspace}
+\newcommand{\sx}{\ensuremath{S_2}\xspace}
+\newcommand{\sy}{\ensuremath{S_3}\xspace}
+\newcommand{\sz}{\ensuremath{S_4}\xspace}
+\newcommand{\sm}{\ensuremath{S_{mat}}\xspace}
+
+\SetKw{KwGoto}{goto}
+\SetKw{KwOr}{or}
+
+
+
+\newabbreviation{MEDS}{MEDS}{Matrix Equivalence Digital Signature}
+\newabbreviation[prefixfirst={the~}]{NIST}{NIST}{National Institute of Standards and Technology}
+\newabbreviation{PQC}{PQC}{Post-Quantum Cryptography}
+\newabbreviation{MCE}{MCE}{Matrix Code Equivalence}
+\newabbreviation{KEM}{KEM}{Key Encapsulation Mechanism}
+\newabbreviation{BRAM}{BRAM}{Block RAM}
+\newabbreviation{ALU}{ALU}{Arithmetic Logic Unit}
+\newabbreviation{XOF}{XOF}{eXtendible Output Function}
+\newabbreviation{TRNG}{TRNG}{True Random Number Generator}
+\newabbreviation{PRNG}{PRNG}{Pseudo Random Number Generator}
+\newabbreviation{KAT}{KAT}{Known Answer Test}
+\newabbreviation{FS}{FS}{Fiat-Shamir}
+\newabbreviation{RSA}{RSA}{Rivest–Shamir–Adleman}
+\newabbreviation{DH}{DH}{Diffie-Hellman}
+\newabbreviation{ECC}{ECC}{Elliptic Curve Cryptography}
+
+
+%
+\begin{document}
+%
+\title{Unified MEDS Accelerator}
+%
+%\titlerunning{Abbreviated paper title}
+
+\author{%
+  Sanjay Deshpande\inst{1}\orcidID{0009-0005-0938-9547}\and
+  Yongseok Lee\inst{2}\orcidID{0000-0002-1608-809X}\and
+  Mamuri Nawan\inst{3}\orcidID{0009-0004-1573-8718}\and 
+  Kashif Nawaz\inst{3}\orcidID{0000-0002-3887-7364}\and
+  Ruben Niederhagen\inst{4,5}\and
+  Yunheung Paek\inst{2}\orcidID{0000-0002-6412-2926}\and
+  Jakub Szefer\inst{6}\orcidID{0000-0001-9721-3640}
+}
+
+\authorrunning{Deshpande et al.}
+
+\institute{%
+  CASLAB, DEE, Yale University, New Haven, US, \email{sanjay.deshpande@yale.edu}
+   \and
+  ECE and ISRC, Seoul National University, Seoul, South Korea,\\ \email{yslee@sor.snu.ac.kr,ypaek@snu.ac.kr}
+   \and
+  CRC, Technology Innovation Institute, Abu Dhabi, UAE,\\ \email{mamuri@tii.ae, kashif.nawaz@tii.ae}
+   \and
+  IIS, Academia Sinica, Taipei, Taiwan, \email{ruben@polycephaly.org}
+   \and
+  IMADA, University of Southern Denmark, Odense, Denmark
+  \and
+  Northwestern University, Evanston, US, \email{jakub.szefer@northwestern.edu}
+}
+
+\maketitle
+
+\begin{abstract}
+  The Matrix Equivalence Digital Signature (MEDS) scheme,
+a code-based candidate in the first round of NIST's
+Post-Quantum Cryptography (PQC) standardization process,
+offers competitively small signature sizes
+but incurs high computational costs
+for signing and verification.
+This work explores how
+a high-performance FPGA-based hardware implementation
+can enhance MEDS performance
+by leveraging the inherent parallelism of its computations,
+while examining the trade-offs
+between performance gains and resource costs.
+This work in particular proposes a unified hardware architecture
+capable of efficiently performing
+both signing and verification operations 
+within a single combined design.
+The architecture jointly supports all security parameters,
+including the dynamic, run-time handling of different prime fields
+without the need to re-configure the FPGA.
+This work also evaluates the resource overhead
+of supporting different prime fields
+in a single design,
+which is relevant
+not only for MEDS
+but also for other cryptographic schemes
+requiring similar flexibility. This work demonstrates that custom hardware
+for PQC signature schemes can flexibly support different prime fields with limited resource overhead.
+For example, for NIST security Level I,
+our implementation achieves signing times of
+\SI{4.5}{\milli\second} to \SI{65.2}{\milli\second}
+and verification times of
+\SI{4.2}{\milli\second} to \SI{64.5}{\milli\second}
+utilizing 22k to 72k LUTs
+and 66 to 273 DSPs
+depending on design variant
+and optimization goal.
+
+
+
+  \enlargethispage{\baselineskip}
+
+  \keywords{Post-Quantum Cryptography  \and Digital Signature Algorithm \and  Matrix Equivalence Digital Signature (MEDS)}
+\end{abstract}
+
+
+\section{Introduction}
+\label{sec:intro}
+
+\gls{MEDS} is a code-based digital signature scheme
+based on the hardness assumption
+of the \gls{MCE} problem.
+It was submitted to the
+\gls{NIST} \gls{PQC} Signature standardization process
+launched in 2023,
+but it did not advance to the second round
+due to its comparatively low performance
+(e.g., according to data from the PQM4 project\footnote{\url{https://github.com/mupq/pqm4}},
+when evaluated in software
+on an embedded 
+evaluation board,
+MEDS is 25$\times$, 244$\times$, 856$\times$ slower
+in key generation, signing, and verification times respectively
+when compared to NIST standard ML-DSA Dilithium \cite{cryptoeprint:2024/112}
+on security level I)
+and the novelty of its security assumptions.
+Given the importance of ensuring
+the practicality of the cryptographic schemes,
+this paper focuses on developing
+a unified high-performance hardware implementation
+of the \gls{MEDS} signing and verification operation.
+We present a joint design
+that supports all security parameter sets,
+selectable at runtime,
+and evaluate the overhead
+of accommodating arithmetic
+for different finite fields
+in a single design.
+Our results on the overhead generalize well
+and can be transferred to other schemes
+with similar parameter set specifications
+such as the NIST PQC Signature Round 2 submission CROSS \cite{NISTPQC-ADD-R2:CROSS24},
+which has parameter sets for $\F_{127}$ and $\F_{509}$.
+Other related schemes such as LESS \cite{NISTPQC-ADD-R2:LESS24} and PERK \cite{NISTPQC-ADD-R2:PERK24}
+that currently are using a single small binary field
+might benefit from investigating trade-offs
+of offering parameter sets with different fields.
+
+By addressing the computational challenges
+associated with \gls{MEDS},
+we aim to contribute to the broader goal
+of making post-quantum cryptography
+viable for widespread adoption
+in the face of advancing quantum computing technologies.
+To the best of our knowledge,
+this work presents
+the first hardware implementation of~\gls{MEDS}.
+Our implementation operates in constant time
+(i.e.,
+there are no timing variations
+depending on secret data),
+though it does not include additional side-channel protections.
+
+\paragraph{Related Work.}
+%
+Gaussian elimination is an important step in \gls{MEDS}
+as well as many other \gls{PQC} schemes.
+Early work~\cite{DBLP:journals/tc/HochetQR89}
+used processor arrays as large as the matrix being processed.
+The work in~\cite{DBLP:journals/tc/ShoufanWMHK10}
+presented one of the first hardware accelerators
+for the code-based Niederreiter cryptosystem.
+The work used a systolic processor array
+for performing Gaussian systemization.
+Later work on Classic McEliece
+also used a systemizer similar to \cite{DBLP:journals/tc/ShoufanWMHK10}
+with smaller processor array.
+For example,
+in~\cite{DBLP:conf/reconfig/WangSN16,CHES:WanSzeNie17}
+the authors present a hardware design
+of a key-generation module for the Niederreiter cryptosystem.
+In~\cite{TCHES:CCDLNSW22},
+the authors implemented
+a complete design of Classic McEliece
+compliant with the specification
+submitted to \pgls{NIST} standardization process
+including binary field systemizers.
+We are using a similar systemizer in our work.
+
+Although there are similar computations
+in regard to matrix systemization
+between \gls{MEDS} and Classic McEliece,
+compared to Classic McEliece,
+instead of working with binary fields,
+\gls{MEDS} requires $\F_q$ with prime $q$.
+As a result,
+the latencies
+(in overall wall-clock time)
+of finite field operations are larger
+compared to when using $\F_2$ or a small binary extension filed $\F_q^{m}$.
+This difference necessitates significant design effort
+for the systemizer design,
+e.g., a different control logic
+and a more complex pipelining process.
+
+Within current \gls{NIST} standardization process
+for digital signatures schemes,
+in \cite{DBLP:conf/cosade/SayariMAKS24,cryptoeprint:2023/1267}
+the authors develop hardware implementations
+of the MAYO digital signature scheme.
+In~\cite{DBLP:journals/tches/DeshpandeHSY24},
+authors present the first hardware implementation
+of the SDitH digital signature scheme.
+\cite{SP:dPRS23} describes hardware FPGA implementations
+of the Raccoon digital signature scheme.
+
+
+In~\cite{SAC:WJWDGSN19},
+the authors present several hardware accelerators
+that work with a RISC-V core
+to accelerate the XMSS signature scheme.
+In~\cite{TCHES:BCHKPSY23},
+the authors present hardware implementation
+of the Oil and Vinegar (OV) signature scheme.
+In~\cite{tang2011high} authors presented an FPGA-based
+implementation of the multivariate-based signature scheme Rainbow.
+Later, in~\cite{ferozpuri2018high} authors presented high-speed, FPGA-based implementation of Rainbow
+with updated parameters for NIST's first round of PQC standardization process.
+Both designs
+are operating on small binary fields
+using a processor array
+similar to the code-based designs
+discussed above.
+Among ASIC designs, in~\cite{zhu2023repqc} authors present a processor
+designed specifically for PQC algorithms, which can support schemes such as
+Saber, Kyber, Dilithium, NTRU, McEliece, and Rainbow.
+This design also includes a module for the systemization
+of matrices over small binary fields,
+but instead of a processor array
+composed of several vector units,
+the authors here are using only a single a vector unit.
+
+Hardware architectures for algorithms
+already being standardized by \gls{NIST} include
+\cite{DBLP:journals/iacr/SchmidAWZW23},
+where the authors implement a hardware design
+of the FALCON scheme
+and
+\cite{DBLP:conf/cardis/LandSG21,DBLP:conf/fpt/BeckwithNG21}
+where the authors explore hardware implementations of CRYSTALS-Dilithium
+(being standardized under the name ``ML-DSA'').
+\cite{DBLP:conf/dsd/AmietLCZ20,DBLP:journals/iacr/Saarinen24,10.1145/3728469}
+explores implementations of SPHINCS+
+(being standardized under the name ``SLH-DSA'').
+
+We are not aware of any other hardware implementation of \gls{MEDS}
+and our work presents a hardware design of \gls{MEDS} that provides 
+a competitive performance and resource utilization compared
+hardware implementations of other signature schemes.
+
+\paragraph{Contributions.}
+%
+This paper introduces
+the first hardware implementation
+of the sign and verify operations
+for the \gls{PQC} signature scheme \gls{MEDS}.
+Our implementation
+combines both operations
+into a single design
+sharing most resources
+between sign and verify.
+We further
+provide joint support
+of all security parameter sets
+in one single design
+selectable at runtime.
+
+We aim to address the following research questions:
+%
+\begin{rquest}
+  \item Does \gls{MEDS} provide sufficient inherent parallelism
+        to accelerate the sign and verify operations
+        to a competitive level?
+        What are the associated resource costs
+        for achieving such a speed-up? \label{RQ:1}
+  \item To what extent can resources be shared
+        in a combined design for the sign and verify operations? \label{RQ:2}
+  \item What is the overhead
+        of supporting all security parameters at runtime,
+        particularly concerning arithmetic
+        in two distinct finite fields? \label{RQ:3}
+\end{rquest}
+
+The source code of our hardware designs is available under an open source license at \url{https://github.com/caslab-code/pqc-hw-meds}.
+
+
+\section{Preliminaries}
+\label{sec::prelim}
+
+We first introduce our notation in \cref{sec::notation}
+and then explain the relevant details
+of the \gls{MEDS} specification
+in \cref{sec::meds}.
+
+
+\subsection{Notation}
+\label{sec::notation}
+
+We are following the notation
+of the \gls{MEDS} specification document \cite{NISTPQC-ADD-R1:MEDS23}
+and
+denote matrices with bold capital letters,
+e.g., $\mat{M}$, $\mat{A}$, and $\mat{B}$.
+We follow the \gls{MEDS} specification in denoting submatrices
+with square brackets,
+e.g., $\mat{M}[a, b; c, d]$ denotes the submatrix
+of the intersection of rows $a$ to $b$
+and columns $c$ to $d$
+of matrix $\mat{M}$ \cite[Section 2.1]{NISTPQC-ADD-R1:MEDS23}.
+If no row or column range is provided,
+all rows or columns are included.
+%
+$\F_q$ is a finite field with $q$ elements.
+We define an
+$[m \times n, k]$
+matrix rank metric code over $\F_q$
+as
+$k$-dimensional subspace of $\Fq{m \times n}$.
+Here, $m$ and $n$ are the codeword sizes
+and $k$ the code~dimension.
+
+The operation $\SF(\mat{M})$
+returns the systematic form of a matrix $\mat{M}$
+if it exists
+or $\bot$ if not.
+%
+The operation $\medspi{\mat{A}}{\mat{B}}{\mat{M}}$
+with $\mat{A} \in \Fq{m \times m}$,
+$\mat{B} \in \Fq{n \times n}$,
+and
+$\mat{M} \in \Fq{k \times mn}$
+first maps each row $i \in \{0, \dots, k-1\}$ of $\mat{M}$
+to a matrix $\mat{P}_i \in \Fq{m \times n}$
+such that $\mat{P}_i[\lfloor j/n \rfloor ; j \bmod n] = \mat{M}[i, j]$
+for $j \in \{0, \dots, mn-1\}$.
+It then computes $\mat{P}'_i \in  \Fq{m \times n}$
+as $\mat{P}'_i = \mat{A}\mat{P}_i\mat{B}$,
+maps the $\mat{P}'_i$
+back to the rows $i$ of a matrix $\mat{M}' \in \Fq{k \times mn}$,
+and
+finally returns $\mat{M}'$ as result.
+
+
+\subsection{MEDS}
+\label{sec::meds}
+
+The \gls{MEDS} scheme \cite{NISTPQC-ADD-R1:MEDS23,AFRICACRYPT:CNPRRST23}
+was a submissions
+to the on-ramp to the \gls{NIST} \gls{PQC} signature standardization process%
+\footnote{\url{https://csrc.nist.gov/Projects/pqc-dig-sig/round-1-additional-signatures}}
+but it did not advance to the second round.
+It is based on the notion of \glsfirst{MCE}:
+%
+\begin{definition}[Matrix Code Equivalence]
+  Let $\C$ and $D$ be two $[m \times n, k]$ matrix codes over~$\F_q$.
+  We say that $C$ and $\D$ are \emph{equivalent}
+  if there exist two invertible matrices $\mat{A} \in \Fq{m \times m}$
+  and $\mat{B} \in \Fq{n \times n}$
+  such that $\D = \mat{A} \cdot \C \cdot \mat{B} $,
+  i.e., for all $\mat{C} \in \C,\ \mat{A} \cdot \mat{C} \cdot \mat{B} \in \D$.
+\end{definition}
+
+\noindent
+This gives rise to the \gls{MCE} problem:
+%
+\begin{problem}[Matrix Code Equivalence Problem]
+  Given two $k$-dimensional matrix codes $\C, \D \subset \Fq{m \times n}$,
+  find two invertible matrices $\mat{A} \in \Fq{m \times m},\ \mat{B} \in \Fq{n \times n}$
+  such that $\D = \mat{A} \cdot \C \cdot \mat{B}$.
+\end{problem}
+
+The \gls{MCE} problem
+is at least as hard as the linear code equivalence problem
+and as hard as the isomorphism of polynomials problem
+\cite{EC:BouFouVeb13},
+and as hard as the alternating trilinear form equivalence problem
+\cite{DBLP:conf/stacs/GrochowQT21,EC:TDJPQS22}.
+Please refer to \cite{NISTPQC-ADD-R1:MEDS23,AFRICACRYPT:CNPRRST23}
+for a concrete security analysis.
+
+\gls{MEDS} uses the \gls{MCE} problem
+to construct a signature scheme
+from an interactive $\Sigma$-protocol
+using the \gls{FS} transform \cite{C:FiaSha86}
+with $t$ rounds
+and by applying some tricks
+to improve signature size and performance,
+i.e.,
+by using $s$ matrix codes in the public key,
+by using challenges with a fixed weight $w$,
+by seeding 0-responses,
+and by generating these seeds from a seed tree.
+
+\paragraph{MEDS parameters.}
+%
+\Cref{tab::params} shows the parameter sets of \gls{MEDS}
+from the first round
+of the \gls{NIST} \gls{PQC} signature scheme standardization.
+In May 2024,
+the \gls{MEDS} submission team announced new parameter sets
+in the NIST PQC mailing list%
+\footnote{\url{https://groups.google.com/a/list.nist.gov/g/pqc-forum/c/pbT_DnPrc2A/m/ZPrIVSmFCQAJ} \label{fn::new_param}}
+as reaction to refined attacks~\cite{DBLP:conf/eurocrypt/NarayananQT24}.
+However,
+they suggest to combine these new parameter sets
+with signature-size optimization techniques
+introduced in \cite{DBLP:conf/pqcrypto/ChouNRS24}.
+These optimizations require algorithmic changes
+compared to the \gls{MEDS} Round 1
+specification document \cite{NISTPQC-ADD-R1:MEDS23}.
+We decided to provide a hardware implementation
+that follows the \gls{MEDS} Round 1 specification 
+and therefore do not implement the optimization
+from \cite{DBLP:conf/pqcrypto/ChouNRS24}
+since there is no concrete specification
+for that \gls{MEDS} variant
+and since we are interested
+in analyzing the effect
+of supporting different prime fields
+in a joint design.
+
+\begin{table}[t] 
+  \caption{\gls{MEDS} parameter sets.}
+  \label{tab::params}
+
+  \begin{tabularx}{\textwidth}
+        {@{}
+           l
+           X
+           S[table-format=4]
+           S[table-format=2]
+           S[table-format=2]
+           S[table-format=2]
+          @{\hskip 2.5em}
+           S[table-format=1]
+           S[table-format=4]
+           S[table-format=2]
+          @{\hskip 2.5em}
+           S[table-format=6]
+           S[table-format=6]
+        @{}}
+        \toprule
+  {Level} & {Parameter Set} & {$q$} & {$n$} & {$m$} & {$k$} & {$s$} & {$t$} & {$w$} & {\makecell{$\pk$\\{\small(byte)}}} & {\makecell{$\sig$\\{\small(byte)}}} \\
+  \midrule
+   \multicolumn{10}{c}{MEDS Parameter Sets \cite[Table 2]{NISTPQC-ADD-R1:MEDS23}:}\\[2pt]
+   Level I & MEDS-9923    &  4093 &  14 &  14 &  14 &   4 & 1152 &  14 &  9923 &  9896 \\
+   Level I & MEDS-13220   &  4093 &  14 &  14 &  14 &   5 &  192 &  20 & 13220 & 12976 \\[2pt]
+  \midrule
+   Level III & MEDS-41711   &  4093 &  22 &  22 &  22 &   4 &  608 &  26 & 41711 & 41080 \\
+   Level III & MEDS-69497   &  4093 &  22 &  22 &  22 &   5 &  160 &  36 & 55604 & 54736 \\[2pt]
+  \midrule
+   Level V & MEDS-134180  & 2039 &  30 &  30 &  30 &   5 &  192 &  52 & 134180 & 132528 \\
+   Level V & MEDS-167717  & 2039 &  30 &  30 &  30 &   6 &  112 &  66 & 167717 & 165464 \\
+  \bottomrule
+   \\[-5pt]
+   \multicolumn{10}{c}{New Parameter Sets May 2024 (signature bytes with seed tree)$^\text{\ref{fn::new_param}}$:}\\[2pt]
+   Level I   &      & 4093 &  26 &  25 &  25 &   2 &  144 &  48 &  21595 &  5456  \\
+   Level III &      & 4093 &  35 &  34 &  34 &   2 &  208 &  75 &  55520 & 10786  \\
+   Level V   &      & 4093 &  45 &  44 &  44 &   2 &  272 & 103 & 122000 & 21052  \\
+  \bottomrule
+  \end{tabularx}
+\end{table}
+
+\paragraph{\gls{MEDS} key generation.}
+%
+To generate a key pair,
+first chose a random $\mat{G}_0 \in \Fq{k \times mn}$.
+Then choose random invertible matrices
+$\mat{A}_1, \dots, \mat{A}_{s-1} \in \Fq{m \times m}$
+and
+$\mat{B}_1, \dots, \mat{B}_{s-1} \in \Fq{n \times n}$.
+Finally, compute the matrices
+$\mat{G}_1, \dots, \mat{G}_{s-1} \in \Fq{k \times mn}$
+as
+$\mat{G}_i = \SF(\medspi{\mat{A}_i}{\mat{B}_i}{\mat{G}_0}),\ i \in \{1, \dots, s-1\}$.
+The public key of \gls{MEDS} consists of
+the seed for randomly generating $\mat{G}_0 \in \Fq{k \times mn}$
+and
+$s-1$ matrices
+$\mat{G}_1, \dots, \mat{G}_{s-1} \in \Fq{k \times mn}$.
+The secret key of $s-1$ pairs of invertible matrices
+$(\mat{A}^{-1}_1, \mat{B}^{-1}_1), \dots,
+(\mat{A}^{-1}_{s-1}, \mat{B}^{-1}_{s-1})
+\in \Fq{m \times m} \times \Fq{n \times n}$.
+
+\paragraph{\gls{MEDS} signing.}
+%
+During signing,
+the signer commits to $t$ matrices $\tilde{\mat{G}}_i \in \Fq{k \times mn},\ i \in \{0, \dots, t-1\}$
+using $t$ maps of pairs of random invertible matrices
+$(\tilde{\mat{A}}_0, \tilde{\mat{B}}_0), \dots,$ 
+$(\tilde{\mat{A}}_{t-1}, \tilde{\mat{B}}_{t-1}) \in \Fq{m \times m} \times \Fq{n \times n}$
+such that
+$\tilde{\mat{G}}_i = \SF(\medspi{\tilde{\mat{A}}_i}{\tilde{\mat{B}}_i}{\tilde{\mat{G}}_0}),\ i \in \{0, \dots, t-1\}$.
+The signer then hashes the $\tilde{\mat{G}}_i$ to the commitment hash $d$
+and parses $d$ to the challenge vector $h_0, \dots, h_{t-1}$
+of weight $w$
+with $h_i \in \{0, s-1\}$.
+The signature finally is composed by providing~$d$
+as well as the seeds
+$\tilde{\mat{A}}_i$ and $\tilde{\mat{B}}_i$ for all $i$ where $h_i = 0$
+and
+$\mu_i = \tilde{\mat{A}}_i \cdot \mat{A}_{h_i}^{-1}$ and
+$\nu_i = \mat{A}_{h_i}^{-1} \cdot \tilde{\mat{B}}_i$
+for all $i$ where $h_i > 0$.
+
+\paragraph{\gls{MEDS} verification.}
+%
+For verification,
+the verifier parses the challenge vector $h_0, \dots, h_{t-1}$ from $d$.
+The verifier then computes $\hat{\mat{G}}_i \in \Fq{k \times mn},\ i \in \{0, \dots, t-1\}$
+as
+$\hat{\mat{G}}_i = \SF(\medspi{\mu_i}{\nu_i}{\mat{G}_{h_i}})$,
+where
+the matrices $\mu_i = \tilde{\mat{A}}_i$
+and $\nu_i = \tilde{\mat{B}}_i$
+are regenerated from the seed-tree seeds
+for all $i$ with $h_i = 0$,
+and
+$\mu_i = \tilde{\mat{A}}_i \cdot \mat{A}_{h_i}^{-1}$ and
+$\nu_i = \mat{A}_{h_i}^{-1} \cdot \tilde{\mat{B}}_i$
+are parsed from the signature
+for all $i$ with $h_i > 0$.
+If the hash of the $\hat{\mat{G}}_i$
+equals the commitment hash $d$,
+the verification is successful.
+
+\paragraph{Cost.}
+%
+The most expensive sub-operations in \gls{MEDS} are
+$\SF$ with a cost of $\text{O}(mnk^2)$ finite field operations
+for performing Gaussian elimination
+on a matrix of size $k \times mn$
+and
+$\pi$ with a cost of $\text{O}(k mn^2 + k m^2n)$
+for performing $k$ matrix products
+of sizes $\Fq{m \times m}$ times $\Fq{m \times n}$ times $\Fq{n \times n}$.
+Hence,
+the computational cost of $\SF$ and $\pi$
+is quartic in the security parameters with $k \approx m \approx n$.
+
+For key generation,
+we need to compute $\SF$ and $\pi$ each only $s$ times,
+where $s \in \{4, 5, 6\}$
+---
+but for signing and verification,
+we need to perform these costly operations
+$t$ times
+with $t \in \{112, 160, 192, 608, 1152\}$.
+Therefore,
+signing and verification are
+$18.6$ to $288$ times more expensive
+than key generation
+and hence benefit the most from hardware acceleration.
+Since verification performs almost the same computations
+as signing
+with only little difference in the control flow,
+we combine both operations in a single design,
+sharing as many resources between these operations as possible.
+
+
+\section{Unified \gls{MEDS} Design}
+\label{sec::design}
+
+We call our hardware design of \gls{MEDS}
+a \emph{unified} design, since it
+\emph{combines} both the \gls{MEDS} signing and verification operations
+into a single design,
+and it provides
+\emph{joint} support for all parameter sets
+selectable at runtime,
+while sharing hardware resources
+between both operations and all parameter sets
+as much as possible.
+
+\Cref{alg:sign} and \cref{alg:verify}
+in the Appendix
+show the signing
+and verification
+operations in detail
+\cite[Algorithms 11 and 12]{NISTPQC-ADD-R1:MEDS23}.
+The inputs to the signing operation
+are the secret key \sk
+and the message \mesg
+that needs to be signed.
+The inputs to the verify operation
+are the public key \pk
+and the signed message
+to be verified.
+%
+Comparing the main loop in
+\cref{alg::sign::comm_start} to \cref{alg::sign::comm_end}
+in \cref{alg:sign}
+with the main loop in
+\cref{alg::verify::comm_start} to \cref{alg::verify::comm_end}
+in \cref{alg:verify}
+shows that the main operations
+of obtaining invertible matrices,
+applying the $\pi$ and $\SF$ operations,
+and computing a commitment hash
+are structurally identical.
+Hence, in our combined design,
+resources for performing these computations
+can be shared efficiently
+between the sign and the verify operation
+with little control~overhead.
+
+\subsection{Top-down Overview of Our \gls{MEDS} Hardware Design}
+\label{sec::HW-overview}
+
+\begin{figure}[t]
+  \centering
+  \tikzstyle{sign} = [color=red,thick,-latex]
+\tikzstyle{verify} = [color=blue,thick,-latex]
+\tikzstyle{both} = [-latex]
+
+\definecolor{colorbg1}{HTML}{DCEAF7}
+\definecolor{colorbg2}{HTML}{FBE3D6}
+\definecolor{colorbg3}{HTML}{F2CFEE}
+
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[align=center,node distance=1cm and 5mm, every node/.style={draw,fill=white, minimum width=2cm, minimum height=8mm}]
+
+  \node (start) at (-1.5,0) [draw=none] {\bf start};
+
+  \node (xof1) [right = of start, yshift=1cm] {\textsf{XOF} $\rho, \alpha$};
+  \node (ST) [right = of xof1, xshift=5mm] {\textsf{SeedTree}};
+  \node (expG0) [right = of xof1, yshift=-1cm, xshift=5mm] {$\ExpandSystMat\ \mat{G}_0$};
+
+  \node (parseV) [right = of start, yshift=-1cm] {\textsf{ParseHash}};
+  \node (path2ST) [right = of parseV, xshift=5mm] {\textsf{PathToSeedTree}};
+
+  \node (xof2) at (-4,-3)  {\textsf{XOF} $\sigma_{\mat{\tilde{A}}_i}, \sigma_{\mat{\tilde{B}}_i}$};
+  \node (expInvA) [fill=colorbg2, right = of xof2] {$\ExpandInvMat\ \mat{\tilde{A}}_i / \mu_i$};
+  \node (expInvB) [fill=colorbg2, right = of expInvA] {$\ExpandInvMat\ \mat{\tilde{B}}_i / \nu_i$};
+  \node (pi) [fill=colorbg3, right = of expInvB] {$\pi\ \mat{\tilde{G}}_i$};
+  \node (SF) [fill=colorbg2, right = of pi] {$\SF\ \mat{\tilde{G}}_i$};
+  \node (hash) [right = of SF] {$\Hash(\compress(\mat{\tilde{G}}_i))$};
+
+  \node (comp) at (1,-7.5)  {check $d = d'$};
+
+  \node (parse) at (1,-6)  {\textsf{ParseHash}};
+  \node (mu) [fill=colorbg2, right = of parse, yshift=0.5cm, xshift=5mm] {$\mat{\tilde{A}}_i \mat{A}^{-1}_{h_i}$};
+  \node (nu) [fill=colorbg2, right = of mu] {$\mat{B}^{-1}_{h_i} \mat{\tilde{B}}_i$};
+  \node (ST2path) [right = of parse, yshift=-0.5cm, xshift=5mm] {\textsf{SeedTreeToPath}};
+
+  \node (done) [right = of parse, xshift=6.25cm, draw=none] {\bf done};
+
+  \draw[sign] (start) -- (xof1.west);
+  \draw[sign] (xof1.east) -- (ST.west);
+  \draw[sign] (ST.east) -| ([xshift=2.5mm]expG0.east);
+
+  \draw[verify] (start) -- (parseV.west);
+  \draw[verify] (parseV.east) -- (path2ST.west);
+  \draw[verify] (path2ST.east) -| ([xshift=2.5mm]expG0.east);
+
+  \draw[both] (start.east) -- (expG0.west);
+  \draw[both] (expG0.east) -- ++(2,0) -- ++(0,-1.75) -| ([xshift=-7.5mm]xof2.west) -- (xof2.west);
+
+  \draw[both] (xof2.east) -- (expInvA.west);
+  \draw[both] (expInvA.east) -- (expInvB.west);
+  \draw[both] (expInvB.east) -- (pi.west);
+  \draw[both] (pi.east) -- (SF.west);
+  \draw[both] (SF.east) -- (hash.west);
+
+  \draw[both] ([xshift=2.5mm]hash.east) -- ++(0,7.5mm) coordinate(mark1) -| ([xshift=-5mm]xof2.west) coordinate[pos=0.5] (mark2);
+  \node[draw=none, fill=colorbg1, minimum height=4mm] at ($(mark1)!0.5!(mark2)$) {$0 \leq i \leq t-1$};
+
+  \draw[verify] ([xshift=-2.5mm]xof2.west) -- ++(0,-7mm) coordinate (mark1) -| ([xshift=2.5mm]xof2.east) coordinate[pos=0.5] (mark2);
+  \node[draw=none, fill=colorbg1, minimum height=4mm] at ($(mark1)!0.5!(mark2)$) {$h_i > 0$};
+
+
+\begin{scope}[on background layer]
+  \draw[dashed, rounded corners, fill=colorbg1] ([xshift=-6.25mm,yshift=7mm]xof2.north west)
+                                      rectangle ([xshift=3.75mm,yshift=-6.5mm]hash.south east);
+\end{scope}
+
+  \draw (hash.east) -- ++(0.5,0) -- ++(0,-1.25) -| ([draw=none,xshift=-5mm]parse.west) coordinate[pos=0.5] (mark);
+
+  \draw[verify] (mark) -- ++(-0.25,0) |- (comp.west);
+
+  \draw[sign] (mark) |- (parse.west);
+
+  \draw[sign] (parse.east) -| ([xshift=-5mm]mu.west) -- (mu.west);
+  \draw[sign] (parse.east) -| ([xshift=-5mm]ST2path.west) -- (ST2path.west);
+  \draw[sign] (mu.east) -- (nu.west);
+  \draw[sign] (ST2path.east) -| ([xshift=5mm]nu.east);
+
+  \draw[sign] ([xshift=2.5mm]nu.east) -- ++(0,7.5mm) coordinate(mark1) -| ([xshift=-2.5mm]mu.west) coordinate[pos=0.5] (mark2);
+  \node[draw=none, fill=white, minimum height=4mm] at ($(mark1)!0.5!(mark2)$) {$0 \leq i \leq t-1$};
+
+  \draw[sign] (nu.east) -| ([xshift=-5mm,yshift=1mm]done.west) -- ([yshift=1mm]done.west);
+
+  \draw[verify] (comp.east) -| ([xshift=-5mm,yshift=-1mm]done.west) -- ([yshift=-1mm]done.west);
+
+\end{tikzpicture}
+}%
+
+
+
+  \caption{Overview of the operational flow of our combined sign and verify module,
+           red lines for sign only, blue lines for verify only.}
+  \label{fig:operational_flow}
+\end{figure}
+
+\Cref{fig:operational_flow}
+shows the operation flow of our combined hardware implementation.
+Data flow unique to the sign operation
+is shown in red
+and unique to the verify operation in blue.
+First, both operations
+expand $\mat{G}_0$
+from seed $\sigma_{\mat{G}_0}$,
+which is parsed from $\sk$ or $\pk$ respectively,
+using the module \texttt{ExpandSystMat}.
+
+Signature generation starts with
+the generation
+of the seed $\delta$ of length $\lprivseed$
+from a randomness source.
+We assume that the seed $\delta$ will be initialized
+by a top-level hardware module,
+e.g., by interfacing to a \gls{TRNG}
+or by implementing the \gls{NIST} \gls{KAT} \gls{PRNG}.
+The seed $\delta$ is then expanded
+using the module \texttt{XOF}
+to the root seed $\rho$ of length $\lseed$
+of the seed tree
+and a salt $\alpha$ of length $\lsalt$.
+In our hardware design,
+we accomplish this
+again using a \texttt{SHAKE256} module
+via a \texttt{XOF} wrapper.
+Then the next step is the seed tree generation
+using the root seed $\rho$
+and the salt $\alpha$
+with the \texttt{SeedTree} module.
+Verification instead parses the hash
+and then generates the partial seed tree
+from the signature.
+We implement this
+in the modules \texttt{ParseHash}
+and \texttt{PathToSeedTree}.
+
+For the main loop
+in sign and verify
+we need to expand the seeds $\sigma_i$
+from the seed tree leaves
+into seeds $\sigma_{\mat{\tilde{A}}_i}$ and $\sigma_{\mat{\tilde{B}}_i}$
+and expand these seeds
+to $\mat{\tilde{A}}_i$ and $\mat{\tilde{B}}_i$
+(i.e., $\mu_i$ and $\nu_i$ respectively for verify)
+using a \texttt{ExpandInvMat} module.
+For signing, we store each $\sigma_i$ in a memory which is later used to 
+recompute $\sigma_{\mat{\tilde{A}}_i}$ and $\sigma_{\mat{\tilde{B}}_i}$ and then expand these seeds
+to $\mat{\tilde{A}}_i$ and $\mat{\tilde{B}}_i$ for computation of $\mu_i$ and~$\nu_i$.
+We then
+feed the matrices into a \texttt{Pi} module
+together with the matrix $\mat{G}_0$,
+compute the systematic form $\mat{\tilde{G}}_i$ of the result
+using the module \texttt{SF}.
+We pull the absorb-function
+of the hash function $\Hash$
+into the loop
+to avoid the need to store all $\mat{\tilde{G}}_i$.
+We will describe the implementation of this loop in detail
+in \cref{sec:signing}.
+
+The steps after the main loop
+are different for sign and verify.
+For sign,
+we also absorb the message \mesg
+into the hash state
+and finalize $\Hash$
+to obtain the challenge vector.
+Then,
+to compute the final loop, we recompute $\sigma_{\mat{\tilde{A}}_i}$ and $\sigma_{\mat{\tilde{B}}_i}$ using $\sigma_i$, 
+and then expand them to generate
+$\mat{\tilde{A}}_i$ and $\mat{\tilde{B}}_i$
+for the computation of $\mu_i$ and $\nu_i$
+using a matrix-matrix multiplication module.
+Eventually, we compute the
+seed tree path for the signature
+using \texttt{SeedTreeToPath}.
+For verify, we only need to check
+that $d = d'$
+and set the return value of the module correspondingly.
+
+
+\subsection{Joint Security Parameter Design}
+
+One of the main questions we want to investigate in this work
+is the hardware overhead of supporting several prime fields
+for different security parameter sets
+selectable at runtime
+in one joint hardware design.
+For modules
+that require both 11-bit arithmetic in $\F_{2039}$ and 
+12-bit arithmetic in  $\F_{4093}$,
+we are using an input signal \lstinline{i_sel_4093}
+that is pulled high for $\F_{4093}$
+and low for $\F_{2039}$.
+The bus width
+for field elements
+is set to \SI{12}{\bit} for the joint design,
+with the most significant bit set to zero
+when $\F_{2039}$ is being selected.
+Therefore,
+the cost for memory storing field elements
+is defined by the larger field in the joint design.
+A similar design approach of constructing field arithmetic modules 
+capable of operating over two distinct prime fields was adopted in \cite{9946370,10483343}, 
+where the authors integrated CRYSTALS-Kyber (which operates over a 12-bit prime field polynomial coefficients) 
+and CRYSTALS-Dilithium (which utilizes a 23-bit prime field polynomial coefficients). 
+In contrast, MEDS features prime fields that differ by only a single bit, 
+enabling support for multiple fields with minimal overhead. 
+
+
+If the Verilog code is synthesised
+for one specific field only,
+we are fixing \lstinline{i_sel_4093}
+to constant $0$ or $1$ respectively
+so that the optimization step during synthesis
+can remove unnecessary logic automatically.
+This enables us
+to get precised resource estimates
+for hardware designs supporting only one respective field
+and for the joint design
+with otherwise identical logic.
+
+The remaining security parameters
+besides the prime field
+are matrix dimensions $n$, $m$, and $k$,
+the number $s$ of $\pk$ matrices,
+as well as $t$ and $s$ for the challenge vector.
+All these other parameters
+mostly affect the upper limit of loops
+and can easily be selected
+using multiplexers
+at runtime
+at little resource overhead.
+We pre-compute related pre-defined constant values
+(e.g., counter widths)
+and provide them as macros and module parameters
+during synthesis (and simulation).
+
+
+\section{Implementation}
+\label{sec::impl}
+
+For the description of our implementation
+of the \gls{MEDS} signature scheme,
+we take a bottom-up approach.
+The different building blocks
+and sub-modules
+are described
+in the following
+including finite field arithmetic,
+matrix operations,
+and the complete sign and verify module.
+
+\subsection{Finite Field Arithmetic} \label{sec:finite_field_arithmetic}
+%
+As described in specified in \cref{sec::meds},
+all underlying arithmetic operations
+multiplication, addition, and inversion
+in the \gls{MEDS} signature scheme
+are performed in the prime field $\mathbb{F}_q$
+where $q$ is either 
+the 11-bit prime $2039 = 2^{11} - 9$
+or
+the 12-bit prime $4093 = 2^{12} - 3$.
+We implement these operations
+as integer arithmetic
+modulo the prime $q$.
+An overview of the resource consumption
+and performance
+for each module
+is provided in \cref{tab:arith}.
+
+\begin{table}[t]
+  \centering
+  \caption{Resource consumption and performance
+           of the $\F_q$ arithmetic functions
+           targeting an Xilinx Artix 7 (\texttt{xc7a200t}) FPGA.
+  }
+  \label{tab:arith}
+  {
+    \fontsize{8pt}{10pt}\selectfont
+    {%\setlength{\tabcolsep}{1.2ex} 
+\sisetup{table-auto-round,group-minimum-digits=4,group-digits=integer}
+\begin{widetable}{\textwidth}{@{}
+                                c
+                                S[table-format=4]
+                                S[table-format=2]
+                                S[table-format=1]
+                                S[table-format=2]
+                                S[table-format=1.1]
+                                S[table-format=1]
+                                S[table-format=3]
+                                S[table-format=1.3]
+                                S[fixed-exponent=3, scientific-notation=fixed, table-format=2.3e1,
+                                   round-precision=1, round-mode=figures]
+                             @{}}
+   \toprule
+%Prime Field Operation	Area				F	Clock Cycles	Time	Time x Area
+%    LUT    DSP    FF    BRAM    (MHz)        (us)    (x10^3)
+   & &\multicolumn{4}{c}{\textbf{Resources}} \\
+   \cmidrule{3-6}
+   \textbf{Operation} & {$q$} & \multicolumn{2}{c}{\textbf{Area}} & \multicolumn{2}{c}{\textbf{Memory}} & {\bf Cycles} & {\bf Freq.} & {\bf Time} & {\bf Time$\times$Area}\\
+   \cmidrule(r){3-4} 
+   \cmidrule(l){5-6}
+   & & {(LUT)} &{(DSP)} & {(FF)} & {(BRAM)} & {(cyc.)} & {(MHz)}  & {(us)} &  \\   
+   \toprule
+%\multicolumn{10}{c}{\bf Addition:}\\[1mm]
+               & 2039   & 27    & 0    & 23    & {---} & 1    & 244       & 0.004091    & 110.457 \\
+{\bf Addition} & 4093   & 28    & 0    & 25    & {---} & 1    & 221       & 0.004532    & 126.896 \\
+               & {both} & 33    & 0    & 25    & {---} & 1    & 201       & 0.004982    & 164.406 \\
+\midrule
+%\multicolumn{10}{c}{\bf Multiplication:}\\[1mm]
+                     & 2039   & 30    & 1    & 40    & {---} & 4    & 360.75    & 0.011088    & 332.64 \\
+{\bf Multiplication} & 4093   & 44    & 1    & 41    & {---} & 4    & 356.50    & 0.011220    & 493.68 \\
+                     & {both} & 46    & 1    & 45    & {---} & 4    & 343.05    & 0.011660    & 536.36 \\
+\midrule
+% \multicolumn{9}{c}{\bf Multiply-and-Add:}\\[1mm]
+% $\F_{2039}$    &     &     &     &     &     &     &     &  \\
+% $\F_{4093}$    &     &     &     &     &     &     &     &  \\
+% Joint          &     &     &     &     &     &     &     &  \\
+% \midrule
+%\multicolumn{10}{c}{\bf Inversion (2x in parallel):}\\[1mm]
+ \multirow{3}{*}{\makecell{\bf Inverse \\ $2 \times$ parallel}}
+   & 2039   &  0     & 0    & 1     & 1     & 1    & 392    & 0.00255       & {---} \\
+   & 4093   &  0     & 0    & 1     & 1.5   & 1    & 392    & 0.00255       & {---} \\
+   & {both} & 12     & 0    & 1     & 2.5   & 1    & 269    & 0.003715      & 44.58 \\
+  \bottomrule
+\end{widetable}}
+
+
+
+  }
+\end{table}
+
+
+\paragraph{Modular Multiplication.} \label{sec:modular_multiplication}
+%
+Since the size of each element in $\mathbb{F}_q$ is 11 or 12 bits,
+we can use the DSPs available on the target FPGA (AMD Artix 7 {\tt xc7a200t-3})
+to perform integer multiplication
+followed by full reduction.
+Using the DSPs helps to avoid long critical paths
+in the FPGA design.
+For modular reduction after integer multiplication,
+we design a specific modular reduction unit targeting the $q$ value. 
+As $q$ is in a pseudo-Mersenne form
+($q = 2^{11}-9 = 2039$ or $q = 2^{12}-3 = 4093$),
+we use the folding technique
+to perform the modular reduction~\cite{DBLP:conf/arith/HasenplaughGG07}.
+As the size of the multiplied output is up to $2 \lceil \log_2(q) \rceil$ bits
+(i.e., 22 resp.~24 bits), 
+we take the most-significant $\lceil \log_2(q) \rceil$ bits
+(i.e., 11 resp.~12 bits), 
+of the output,
+multiply them by $2^{\lceil \log_2(q) \rceil} - q$
+(i.e., $9 = 1001_b$ or $3 = 11_b$
+---
+since the binary representation of the factor is sparse,
+we simple shift-and-add instead of multiplying),
+and add this to the least significant~$\lceil \log_2(q) \rceil$ bits
+(i.e., 11 resp.~12 bits).
+As the result of the addition may have more than $\lceil \log_2(q) \rceil$ bits,
+we repeat this folding process
+until all most-significant bits are folded
+and until there is no more carry generated
+from addition after folding.
+Eventually,
+we use a multiplexer at the intermediate folded result $r$
+to identify corner cases $r \geq q$
+and in case we detect one of these cases,
+we subtract the modulus $q$ from~$r$.
+
+Many computations in the joint design
+are the same for both fields.
+The only difference in the folding reduction step is
+that for $q = 2039$ we need to multiply the top bits by $9$
+and for $q = 4093$ by $3$,
+which only requires an additional multiplexer. 
+Also the final conditional subtraction
+just requires a multiplexer
+to select the prime.
+
+The input-independent latency
+for our modular multiplication unit
+for all variants
+is four clock cycles.
+One register is placed after the multiplication unit
+followed by two registers
+to pipeline the reduction unit efficiently
+to reduce the overall critical path.
+The output is not registered by default.
+
+
+\paragraph{Modular Inversion.}
+%
+This operation is mostly required
+for matrix systemization
+(described in detail in \cref{sec:systemizer}).
+To perform that computation efficiently,
+we require low-latency field inversion.
+To achieve this and
+since the size of the finite field $\mathbb{F}_q$
+with 11 and 12 bits is relatively small,
+we decided not to use expensive, high-latency inversion algorithms
+like the extended Euclidean algorithm,
+Fermat's little theorem
+or Montgomery inversion
+for our modular inversion module.
+Instead,
+we trade computation for memory
+and precompute the inverse of all elements in $\mathbb{F}_q$ at synthesis time
+and store them as look-up table in \gls{BRAM}.
+Hence,
+we have a input-independent latency
+of only one clock-cycle
+for performing modular inversion. 
+To use the memory resources as efficiently as possible,
+we are exploiting the dual-ported interface of the \gls{BRAM}
+to perform two independent inversions in parallel,
+hence halving the effective resource cost.
+
+The joint design
+for this operation
+provides look-up tables
+for both primes
+and some additional logic
+for selecting the output
+of the requested field.
+The resource requirements are shown on \cref{tab:arith}.
+
+\paragraph{Summary.}
+%
+The resource evaluation in \cref{tab:arith} demonstrates
+that hardware support for multiple fields
+imposes only a small additional cost,
+provided the fields are ``related,''
+meaning they share the same reduction algorithm. 
+Similar works that support two distinct prime fields \cite{9946370,10483343} do not present a fine-grained analysis of the overhead introduced at the modular arithmetic level due to dual-field support; instead, they primarily emphasize the associated overhead at the level of polynomial multiplication units.
+In our reduction module, when employing the folding technique,
+efficient resource sharing can be achieved
+under the condition
+that the primes have a low Hamming distance.
+Consequently,
+supporting different prime fields in hardware
+is not prohibitively resource-intensive
+if the fields are selected carefully.
+This can make using different prime fields
+a viable design choice for cryptographic primitives
+when using different fields offers meaningful benefits,
+such as reduced signature or ciphertext sizes. 
+
+
+\subsection{Matrix Multiplication} \label{sec:matrix_multiplication}
+Matrix multiplication
+is one of the most used operations
+in the \gls{MEDS}
+It is used in the $\pi$ operation
+and for computing the $\mu_i$ and $\nu_i$
+during signing.
+Consequently,
+we take care to design
+an efficient matrix multiplication unit
+that is parameterizable
+at synthesis time
+to enable performance trade-offs.
+As mentioned in \cref{sec::HW-overview},
+matrices in \gls{MEDS} are specified
+to be sampled in row-wise order.
+
+The general task of this module
+is to compute $\mat{C} = \mat{A} \cdot \mat{B}$.
+Instead of traditional schoolbook
+matrix multiplication
+with limited parallelism,
+we are using a vector-based approach
+similar to standard SIMD techniques
+in our matrix multiplication design.
+
+Asymptotically more efficient
+matrix multiplication algorithms,
+e.g., Strassen
+or Coppersmith–Winograd,
+do not apply to \gls{MEDS}
+due to the relatively small matrix dimensions. 
+Additionally, techniques such as the
+trick by Arlazarov, Dinic, Kronrod, and Faradžev \cite{ArlazarovEtAl1970},
+which are not asymptotically faster 
+and are most effective for small fields
+when the matrix dimension exceeds the field size
+(e.g., $\mathrm{GF}(16)$ with matrix dimension up to~$133$
+in~\cite{10.1007/978-3-031-54409-5_10}),
+are also not applicable in the context of MEDS
+due to the relatively large fields $\F_{2039}$ and $\F_{4093}$
+and small matrix dimension of up to~$30$.
+
+This approach allows us
+to take advantage of the pipelining
+of the $\F_q$ multiplier
+and also allows us
+to perform single-element additions
+in each iteration.
+This design also allows us
+to stream the inputs to the multiplication unit
+and to make best use of all pipelining registers.
+The latency $l_\text{mm}$ of our matrix multiplication unit
+can be computed
+from the matrix dimensions $d_1$, $d_2$, and $d_3$,
+the number of pipeline stages $l_\text{mmpipe}$,
+and the performance parameter \mmperf
+(i.e.,~the column-block width)
+as $l_\text{mm} = l_\text{mmpipe} + \frac{d_1 \cdot d_2 \cdot d_3}{\mmperf}$.
+
+\begin{figure}[t]
+  \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics[width=1.0\textwidth]{figs/matrix_multiplication.pdf}
+    \caption{matrix multiplication module.}
+    \label{fig::mat_mul}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\textwidth}
+    \centering
+    \includegraphics[width=1.0\textwidth]{figs/pi.pdf}
+    \caption{$\pi$ module.}
+    \label{fig::pi_mod}
+  \end{subfigure}
+  \caption{Hardware design of the matrix multiplication and $\pi$ modules.}
+\end{figure}
+
+
+\begin{table}[t]
+  \caption{Comparison of the time and area for our Matrix Multiplication module
+           targeting Xilinx Artix 7 (\texttt{xc7a200t}) FPGA.}
+  \label{tab:mat_mul}
+  \centering
+  {
+    \fontsize{8pt}{10pt}\selectfont
+    % \documentclass{standalone}
+% 
+% \usepackage{tabularx, multirow, booktabs, makecell}
+% 
+% \begin{document}
+
+\newcommand{\mytimes}[1]{$#1, #1, #1$}
+
+{%\setlength{\tabcolsep}{1.2ex} 
+\sisetup{table-auto-round,group-minimum-digits=4,group-digits=integer}
+\begin{widetable}{\textwidth}{@{}c
+                                S[table-format=2]
+                                S[table-format=4]
+                                S[table-format=4]
+                                S[table-format=2]
+                                S[table-format=4]
+                                S[table-format=1.1]
+                                S[table-format=4]
+                                S[table-format=3]
+                                S[table-format=2.2]
+                                %S[fixed-exponent=3, scientific-notation=fixed,]
+                                S[fixed-exponent=3, scientific-notation=fixed, table-format=2.0e1,
+                                   round-precision=1, round-mode=figures]
+                             @{}}
+   \toprule
+    & & &\multicolumn{4}{c}{\textbf{Resources}} \\
+   \cmidrule(lr){4-7}
+   $d_1, d_2, d_3$ &  $p_{mm}$ & $q$ & \multicolumn{2}{c}{\textbf{Area}} & \multicolumn{2}{c}{\textbf{Memory}} & {\bf Cycles} & {\bf Freq.} & {\bf Time} & {\bf Time$\times$Area}\\
+   \cline{4-5} 
+   \cline{6-7}
+   & & &{(LUT)} &{(DSP)} & {(FF)} & {(BRAM)} & {(cyc.)} & {(MHz)}  & {(us)} &  \\   
+
+  \toprule
+  \multicolumn{11}{c}{Parameter-set specific designs:}\\[1mm]
+   \mytimes{14}  &  2   & 4093   & 279   & 2   & 197   & 0.5   & 1380   & 218   &  6.34   & 2000 \\
+   \mytimes{22}  &  2   & 4093   & 294   & 2   & 206   & 0.5   & 5332   & 218   & 24.50   & 7000 \\
+   \mytimes{30}  &  2   & 2039   & 298   & 2   & 206   & 0.5   &13508   & 195   & 69.20   & 21000 \\\midrule                                                                 
+   \mytimes{14}  &  4   & 4093   & 383   & 4   & 317   & 1     &  792   & 218   &  3.64   & 1000 \\
+   \mytimes{22}  &  4   & 4093   & 396   & 4   & 332   & 1     & 2912   & 218   & 13.38   & 5000 \\
+   \mytimes{30}  &  4   & 2039   & 387   & 4   & 320   & 1     & 7208   & 218   & 33.11   & 13000 \\\midrule
+   \mytimes{14}  &  8   & 4093   & 598   & 8   & 565   & 1.5   &  400   & 218   &  1.84   & 1000 \\
+   \mytimes{22}  &  8   & 4093   & 625   & 8   & 580   & 1.5   & 1460   & 199   &  7.32   & 5000 \\
+   \mytimes{30}  &  8   & 2039   & 606   & 8   & 556   & 1.5   & 3608   & 199   & 18.09   & 11000 \\
+  \toprule
+  \multicolumn{11}{c}{Joint designs:}\\[1mm]
+   \mytimes{14}  &      &        &       &     &       &       & 1380   &       &  6.93   & 2000 \\
+   \mytimes{22}  &  2   & both   & 335   & 2   & 220   & 0.5   & 5332   & 199   & 26.79   & 9000 \\
+   \mytimes{30}  &      &        &       &     &       &       &13508   &       & 67.88   & 23000 \\
+  \midrule                                                              
+   \mytimes{14}  &      &        &       &     &       &       &  792   &       &  3.65   & 2000 \\
+   \mytimes{22}  &  4   & both   & 460   & 4   & 348   & 1     & 2912   & 217   & 13.42   & 6000 \\
+   \mytimes{30}  &      &        &       &     &       &       & 7208   &       & 33.23   & 15000 \\
+  \midrule                                                              
+   \mytimes{14}  &      &        &       &     &       &       &  400   &       &  2.04   & 2000 \\
+   \mytimes{22}  &  8   & both   & 753   & 8   & 612   & 1.5   & 1460   & 196   &  7.43   & 6000 \\
+   \mytimes{30}  &      &        &       &     &       &       & 3608   &       & 18.36   & 14000 \\
+  \bottomrule
+\end{widetable}}
+% \end{document}
+
+
+  }
+\end{table}
+
+
+Performance and resource demands
+for the different parameter sets
+and design variants are shown in \cref{tab:mat_mul}.
+Since the arithmetic latencies
+of the field-specific variants
+and the joint design
+are identical,
+the number of cycles
+depends only on the matrix dimensions
+$d_1$, $d_2$, and $d_3$
+as well as the degree of parallelization $\mmperf$.
+The maximum frequency is in about the same range
+for all cases
+with about $10\%$ variance.
+The joint design,
+however,
+requires more computational logic resources
+for the joint field arithmetic
+(see \cref{sec:finite_field_arithmetic})
+and for supporting different matrix dimensions
+in the same design.
+
+
+\subsection{Matrix Systemization} \label{sec:systemizer}
+\begin{table}[t]
+  \centering
+  \caption{Comparison of the time and area for our Systemizer module
+           targeting Xilinx Artix 7 (\texttt{xc7a200t}) FPGA.}
+  \label{tab:systemizer}
+  {
+    \fontsize{8pt}{10pt}\selectfont
+    % \documentclass{standalone}
+% 
+% \usepackage{tabularx, multirow, booktabs, makecell}
+% 
+% \begin{document}
+
+{%\setlength{\tabcolsep}{1.2ex} 
+\sisetup{table-auto-round,group-minimum-digits=4,group-digits=integer}
+\begin{widetable}{\textwidth}{@{}c
+                                S[table-format=1]
+                                S[table-format=4]
+                                S[table-format=5]
+                                S[table-format=2]
+                                S[table-format=4]
+                                S[table-format=2.1]
+                                S[table-format=6]
+                                S[table-format=3]
+                                S[table-format=4.2]
+                                % S[fixed-exponent=3, scientific-notation=fixed,]
+                                S[fixed-exponent=3, scientific-notation=fixed, table-format=4.0e1,
+                                   round-precision=3, round-mode=figures]
+                             @{}}
+   \toprule
+    & & &\multicolumn{4}{c}{\textbf{Resources}} \\
+   \cmidrule(lr){4-7}
+    \textbf{Matrix Size} &  $p_{mm}$ & $q$ & \multicolumn{2}{c}{\textbf{Area}} & \multicolumn{2}{c}{\textbf{Memory}} & {\bf Cycles} & {\bf Freq.} & {\bf Time} & {\bf Time$\times$Area}\\
+   \cline{4-5} 
+   \cline{6-7}   rows$\times$cols & & &{(LUT)} &{(DSP)} & {(FF)} & {(BRAM)}    & {(cyc.)} & {(MHz)}  & {(us)} &  \\   
+   \toprule
+
+  \multicolumn{11}{c}{Parameter-set specific designs:}\\[1mm]
+$14 \times 196$ & 2   & 4093   &  943   &  6   & 1076 & 1.5 &   9345 & 185     &   50.52   & 48000 \\
+$22 \times 484$ & 2   & 4093   & 1067   &  6   & 1334 & 1.5 &  57393 & 177     &  324.21   & 346000 \\
+$30 \times 900$ & 2   & 2039   & 1178   &  6   & 1511 & 1.0 & 199393 & 199     & 1002.15   & 1181000 \\\midrule
+$14 \times 196$ & 4   & 4093   & 2172   & 20   & 2670 & 3.0 &   2718 & 177     &   15.39   & 33000 \\
+$22 \times 484$ & 4   & 4093   & 2288   & 20   & 3155 & 3.0 &  15702 & 183     &   85.94   & 197000 \\
+$30 \times 900$ & 4   & 2039   & 2388   & 20   & 3408 & 2.0 &  53222 & 173     &  308.32   & 736000 \\\midrule
+$14 \times 196$ & 8   & 4093   & 6442   & 72   & 7030 & 7.5 &    794 & 193     &    4.12   & 27000 \\
+$22 \times 484$ & 8   & 4093   & 6645   & 72   & 8192 & 7.5 &   4069 & 166     &   24.54   & 163000 \\
+$30 \times 900$ & 8   & 2039   & 6783   & 72   & 8939 & 5.0 &  13490 & 170     &   79.24   & 537000 \\
+  \toprule
+
+  \multicolumn{11}{c}{Joint designs:}\\[1mm]
+$14 \times 196$ &     &        &         &      &      &     &   9345 &         &   52.67   & 67000 \\
+$22 \times 484$ & 2   & both   &  1263   &  6   & 1595 & 2.5 &  57393 & 177     &  323.47   & 409000 \\
+$30 \times 900$ &     &        &         &      &      &     & 199393 &         & 1123.78   & 1419000 \\
+  \midrule
+$14 \times 196$ &     &        &         &      &      &     &   2718 &         &   15.72   & 44000 \\
+$22 \times 484$ & 4   & both   &  2778   & 20   & 3685 & 5.0 &  15702 & 173     &   90.82   & 252000 \\
+$30 \times 900$ &     &        &         &      &      &     &  53222 &         &  307.84   & 855000 \\
+  \midrule
+$14 \times 196$ &     &        &         &      &      &     &    794 &         &    4.69   & 39000 \\
+$22 \times 484$ & 8   & both   &  8333   & 72   & 9138 & 10.0&   4069 & 169     &   24.04   & 200000 \\
+$30 \times 900$ &     &        &         &      &      &     &  13490 &         &   79.71   & 664000 \\
+
+  \bottomrule
+\end{widetable}}
+
+% \end{document}
+
+  }
+\end{table}
+
+Our hardware design
+for matrix systemization
+follows the state-of-the art
+such as
+\cite{DBLP:journals/tc/ShoufanWMHK10,DBLP:conf/reconfig/WangSN16,CHES:WanSzeNie17,TCHES:CCDLNSW22,DBLP:conf/dac/ZhuZCZLWL23,TCHES:BCHKPSY23}:
+We are using a processor array
+of a quadratic shape
+that processes column-blocks of the input matrix
+in several rounds
+consisting of several steps.
+For a detailed description of the operation of the systemizer,
+we refer to \cite[Section 3]{TCHES:CCDLNSW22}.
+
+The design in \cite{TCHES:BCHKPSY23}
+combines matrix systemization and matrix multiplication in one design
+with the goal to share resources between these two operations.
+However,
+we are using a pipelined overall design
+to increase signing and verification performance
+and hence we need individual modules
+for matrix systemization and multiplication.
+Due to the pipelined overall design,
+all modules are under load most of the time
+(as shown in \cref{tab::config})
+and resources are in use in parallel
+--- and hence do not need to be shared to achieve efficiency.
+
+The design in \cite{DBLP:conf/dac/ZhuZCZLWL23}
+reduces memory cost
+by streaming out parts of the systemized matrix
+as complete columns become available during computation
+without storing the entire matrix on-chip.
+This optimization does not apply to MEDS
+(except if external memory is used),
+since the large $k \times nm$ matrices
+$\mat{\tilde{G}_i}$ and $\mat{\hat{G}_i}$
+need to be fed row-wise into the hash function.
+
+In contrast to earlier designs
+aiming at the systemization of matrices over $\F_2$
+as they appear, e.g.,
+in binary codes
+used for the code-based McEliece cryptosystem
+\cite{DBLP:journals/tc/ShoufanWMHK10,DBLP:conf/reconfig/WangSN16,TCHES:CCDLNSW22}
+or matrices over binary fields
+as used, e.g., in code-based \cite{CHES:WanSzeNie17}
+as well as multivariate cryptosystems
+\cite{ferozpuri2018high,TCHES:BCHKPSY23},
+we are dealing with matrices over medium-sized prime fields,
+which means that we are dealing with a longer arithmetic latency:
+while binary field arithmetic in earlier work
+has a latency of one cycle,
+we decided to deal with the larger arithmetic latency
+by using several clock cycles
+for multiplication and addition.
+This does not affect
+the overall process of the systemization,
+but we need to take the latencies into consideration
+to avoid race conditions
+during the parallel processing of that data.
+For example,
+our design needs to wait for different amounts of overhead cycles
+between consecutive rounds
+to wait for data of the previous round being written back to memory
+depending on the number of column blocks
+that are being processed in between.
+Depending on the size of the processor array,
+the arithmetic latencies add up
+and we quickly get an overall latency
+of the processor array
+of dozens of cycles.
+However,
+in contrast to earlier designs
+\cite{DBLP:conf/reconfig/WangSN16,CHES:WanSzeNie17,TCHES:CCDLNSW22}
+we do pipeline computation
+between consecutive rounds
+as much as possible.
+
+Similar to \cite{TCHES:BCHKPSY23},
+we are not too concerned about systemization failures,
+which happen only very rarely for our field sizes:
+%
+\label{sec::syst_failure_prob}
+%
+The probability that a
+random $n \times m$ matrix ($m \geq n$)
+over a finite field $\F_q$
+has a systematic form
+is the same as that of an $n \times n$ matrix over $\F_	q$ being full rank.
+For large $n$ and $q$,
+this probability is approximately
+$1 - \frac{1}{q}$.
+%
+Hence, for $q = 4093$, we have a probability of success
+for the \textsf{SF} operation
+in \cref{alg::sign::SF}
+of about $99.98\%$
+and for $q = 2039$ of about $99.96\%$.
+In other words,
+we expect a failure to systemize a matrix over $\F_q$
+roughly every $q$ attempts
+---
+for $q = 4093$ we expect one failure roughly every $4093$
+and for $q = 2039$ roughly every $2039$ systemization attempts.
+Therefore,
+we omit some of the tweaks described in \cite{TCHES:CCDLNSW22}:
+As we do not require a mechanism
+to detect failure
+{as early as possible
+but only at the end of systemization,
+we do not need store all operations
+that are generated in pivoting steps
+in-place in the data memory
+for later use.
+Instead,
+we can use a relatively small additional memory
+as in \cite{DBLP:conf/reconfig/WangSN16,CHES:WanSzeNie17,TCHES:BCHKPSY23}
+to store the operations
+only of the current pivoting step,
+overwriting those of previous steps.
+Similar to these designs,
+we detect systemization failure
+at the end of the computation
+in the final pivoting step.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figs/systemizer_main.pdf}
+  \caption{Systemizer module with $p_\text{sys}$ vector \glsplural{ALU}
+               of width $p_\text{sys}$.
+           }
+       
+  \label{fig::sys_overview}\label{fig::sys_row}
+\end{figure}
+
+\Cref{fig::sys_overview} shows an overview
+of the systemizer module.
+We use the performance parameter $p_\text{sys}$
+to specify the number of both rows and columns
+of the processor array.
+The number of columns
+corresponds to the column-block width
+of the corresponding \gls{BRAM}
+that stores the matrix data.
+We are grouping the processor elements
+of each row
+into a vector \glspl{ALU} of width $p_\text{sys}$.
+
+The design operates
+by feeding matrix data
+in column blocks
+row-by-row into the processor array,
+one row in each cycle.
+Once a pivot matrix row reaches
+the corresponding processor row,
+it is stored in registers \texttt{SAR[i,j]}.
+The pivoting rows need to be normalized,
+which requires a scalar inversion
+and a scalar-vector multiplication.
+Later in the process,
+incoming rows are reduced
+by the pivoting row,
+which requires a scalar multiplication
+and a subtraction.
+
+Now, as mentioned before,
+the prime-filed arithmetic operations
+have a considerable latency.
+Since processor array
+operates in a pipelined fashion,
+the result of the normalization
+is already required
+for the next input.
+Overcoming the latencies of the normalization
+would require several buffer stages.
+Also,
+we would like to use only one vector unit
+computing scalar-vector multiplication and vector addition,
+not two for normalization and reduction.
+
+Our solution to this problem
+is to delay the normalization
+of pivoting rows
+until they are read out of the processor array.
+This means that a new pivot row
+can be stored in \texttt{SAR[i,j]} unmodified
+and is available without further latency
+in the next cycle.
+For the normalization and reduction
+we now can use just one single vector \gls{ALU},
+but we need to prepare the respective inputs
+at the cost of several cycles of latency.
+The vector \gls{ALU} now always
+multiplies \texttt{SAR[i,j]} by a scalar factor
+either for normalization or for reduction
+and adds an input vector to the result
+which is either all zero for normalization
+or input matrix data for reduction.
+We need one additional scalar-scalar multiplication
+per processor row
+for normalizing the pivot row towards reducing follow-up rows.
+
+The top part of \cref{fig::sys_row}
+shows the pipelined modules
+that prepare the inputs for
+and control the behavior
+of the vector unit
+and the bottom part shows the vector unit itself
+with $p_\text{sys}$ multiply-and-add units.
+The overall latency
+of each processor row
+is defined by the sequential operation
+of the top part
+and the parallel latency of bottom part
+as the latencies of
+one multiplication,
+one addition,
+and one multiply-and-add operation
+plus some additional latencies
+to optimize data paths
+of control logic.
+
+The performance of our systemizer design
+is shown in \cref{tab:systemizer}.
+The maximum frequency ranges between
+\SI{166}{\mega\hertz} and \SI{199}{\mega\hertz}.
+The joint design requires the same number of cycles
+but its maximum frequency is rather at the low end of the range.
+
+\subsection{Pi Module}
+\label{sec:pi}
+
+The algorithm for the $\pi$ operation
+is given in \cite[Algorithm 7]{NISTPQC-ADD-R1:MEDS23}
+and was introduced in \cref{sec::notation}.
+To recap,
+the $\medspi{\mat{A}}{\mat{B}}{\mat{G}}$ operation
+for $\mat{A} \in \Fq{m \times m}$,
+$\mat{B} \in \Fq{n \times n}$, and
+$\mat{G} \in \Fq{k \times mn}$
+is defined as follows:
+arrange the rows of matrix $\mat{G}$
+into a $k$ separate $m \times n$ matrices
+$\{\mat{P}_0, ... , \mat{P}_{k-1}\}$
+and then compute $\mat{P}'_i = \mat{A} \cdot \mat{P}_i \cdot \mat{B}$.
+Finally, we get the result as matrix $\mat{G}' \in \Fq{k \times mn}$
+by packing $\mat{P}'_i$ into row $i$ of $\mat{G}'$.
+
+In our implementation of the $\pi$ operation,
+we avoid the first step
+of arranging the rows of matrix $\mat{G}$
+into $k$ separate $m \times n$ matrices.
+Instead,
+while generating matrix $\mat{G}$
+using the \texttt{ExpandSystMat} module,
+the matrix is already arranged
+in $k$ separate BRAM units.
+Therefore,
+we can directly perform
+the $\mat{A} \cdot \mat{P}_i \cdot \mat{B}$ operation
+using our matrix multiplication unit
+(described in \cref{sec:matrix_multiplication}).
+We first perform $\mat{T} = \mat{A} \cdot \mat{P}$
+and then $\mat{P}' = \mat{T} \cdot \mat{B}$.
+\Cref{fig::pi_mod} shows the design of our $\pi$ module.
+
+\begin{table}[t]
+  \centering
+  \caption{Comparison of the time and area for our Pi module
+           targeting Xilinx Artix 7 (\texttt{xc7a200t}) FPGA
+           for $p_{\pi mm} = 4$.}
+  \label{tab:pi}
+  {
+    \fontsize{8pt}{10pt}\selectfont
+    % \documentclass{standalone}
+% 
+% \usepackage{tabularx, multirow, booktabs, makecell}
+% 
+% \begin{document}
+
+{%\setlength{\tabcolsep}{1.2ex} 
+\newcommand{\mytimes}[1]{$#1, #1, #1$}
+\sisetup{table-auto-round,group-minimum-digits=4,group-digits=integer}
+\begin{widetable}{\textwidth}{@{}c
+                                S[table-format=2]
+                                S[table-format=4]
+                                S[table-format=6]
+                                S[table-format=3]
+                                S[table-format=5]
+                                S[table-format=2.1]
+                                S[table-format=6]
+                                S[table-format=3]
+                                S[table-format=3.2]
+                                %S[fixed-exponent=3, scientific-notation=fixed,]
+                                S[fixed-exponent=3, scientific-notation=fixed, table-format=4.1e1,
+                                   round-precision=1, round-mode=figures]
+                             @{}}
+   \toprule
+    & & &\multicolumn{4}{c}{\textbf{Resources}} \\
+   \cmidrule(lr){4-7}
+   $k, m, n$ &  $p_{\pi pm}$ & $q$ & \multicolumn{2}{c}{\textbf{Area}} & \multicolumn{2}{c}{\textbf{Memory}} & {\bf Cycles} & {\bf Freq.} & {\bf Time} & {\bf Time$\times$Area}\\
+   \cline{4-5} 
+   \cline{6-7}
+    & & &{(LUT)} &{(DSP)} & {(FF)} & {(BRAM)} & {(cyc.)} & {(MHz)}  & {(us)} &  \\   
+   \toprule
+
+  \multicolumn{11}{c}{Parameter-set specific designs:}\\[1mm]
+\mytimes{14}  & 2      & 4093   & 1329   & 8      & 660    & 2      & 25474  & 218  &  117.03 & 155000  \\
+\mytimes{22}  & 2      & 4093   & 1610   & 8      & 706    & 2      & 91354  & 218  &  419.68 & 675000  \\
+\mytimes{30}  & 2      & 2039   & 1655   & 8      & 688    & 2      & 223474 & 218  & 1026.64 & 1697000  \\\midrule                                                                 
+\mytimes{14}  & 4      & 4093   & 2172   & 16     & 1248   & 4      & 13588  & 218  &  62.42  & 135000  \\
+\mytimes{22}  & 4      & 4093   & 2204   & 16     & 1313   & 4      & 48724  & 196  &  249.17 & 548000  \\
+\mytimes{30}  & 4      & 2039   & 2457   & 16     & 1269   & 4      & 119188 & 196  &  609.53 & 1494000  \\\midrule                                                                 
+\mytimes{14}  & 8      & 4093   & 3350   & 32     & 2438   & 8      & 6796   & 218  &  31.22  & 104000  \\
+\mytimes{22}  & 8      & 4093   & 3526   & 32     & 2536   & 8      & 24364  & 218  &  111.93 & 394000  \\
+\mytimes{30}  & 8      & 2039   & 4028   & 32     & 2437   & 8      & 59596  & 218  &  273.78 & 1101000  \\
+
+  \toprule                                                              
+  \multicolumn{11}{c}{Joint designs:}\\[1mm]                            
+
+\mytimes{14}  &        &        &        &        &        &        & 25474  &      &  117.44 & 197000  \\
+\mytimes{22}  & 2      & both   & 1891   & 8      & 751    & 2      & 91354  & 217  &  421.14 & 705000  \\
+\mytimes{30}  &        &        &        &        &        &        & 223474 &      & 1030.22 & 1725000  \\
+  \midrule                                                                 
+\mytimes{14}  &        &        &        &        &        &        & 13588  &      &  62.64  & 190000  \\
+\mytimes{22}  & 4      & both   & 2856   & 16     & 1392   & 4      & 48724  & 217  &  224.62 & 682000  \\
+\mytimes{30}  &        &        &        &        &        &        & 119188 &      &  549.46 & 1668000  \\
+  \midrule                                                                 
+\mytimes{14}  &        &        &        &        &        &        & 6796   &      &  31.33  & 174000  \\
+\mytimes{22}  & 8      & both   & 4732   & 32     & 2661   & 8      & 24364  & 217  &  112.32 & 623000  \\
+\mytimes{30}  &        &        &        &        &        &        & 59596  &      &  274.74 & 1523000  \\
+  \bottomrule
+
+
+
+\end{widetable}}
+
+% \end{document}
+
+  }
+\end{table}
+
+
+We provide a performance parameter \pipmperf
+for the $k$ matrix multiplications
+such that we can select number
+of matrix multiplications 
+to be performed in parallel
+(the ``pm'' strands for parallel matrix multiplications).
+We control the number of parallel finite field operations
+in the matrix multiplication units
+of the $\pi$ operation individually
+by setting the performance parameter \mmperf
+of the matrix multiplication unit
+(see \cref{sec:matrix_multiplication})
+to \pimmperf for the $\pi$ operation.
+This gives us two different performance parameters
+for our $\pi$ design:
+first, the number \pimmperf of prime field \glspl {ALU}
+per matrix multiplication
+and
+second, the number \pipmperf
+of parallel matrix multiplications.
+%
+The latency $l_\pi$ of our $\pi$ operation
+is $l_\pi = \frac{k}{\pipmperf} \left( 2l_\text{mmpipe} + \frac{mmn + mnn}{\pimmperf} \right)$
+%
+with $l_\text{mm}$ and $l_\text{mmpipe}$
+as defined in \cref{sec:matrix_multiplication}.
+
+The synthesis results for our \texttt{Pi} module
+for different configurations are
+shown in \cref{tab:pi}.
+The maximum frequency is similar for all variants.
+The larger matrix dimensions for $k,m,m = 30$
+seem to outweigh the smaller resource requirement
+of $\F_{2039}$ arithmetic.
+The resource overhead
+of the joint design
+compared to the field-specific variants
+is moderate.
+
+
+\subsection{Signing and Verification}\label{sec:signing}
+
+\Cref{fig:sign} shows
+the block diagram of the overall hardware design
+combining both \gls{MEDS} sign and verify algorithms
+detailed in \cref{alg:sign} and \cref{alg:verify} respectively by sharing hardware modules between both operations.
+
+In sign, we assume that byte deserialization
+of the input data for the secret key \sk
+into the seed $\sigma_{\mat{G}_0}$
+and the matrices $\mat{A}^{-1}_i$ and $\mat{B}^{-1}_i$
+using the \texttt{Decompress} module
+are performed on a higher layer.
+We also leave the composition
+of the signed message \signedmessage
+including
+the serialization of output data $\mu_i$ and $\nu_i$
+using the \texttt{Compress} module
+to a higher layer
+and just provide read ports to its components
+as output ports to the design.
+We also omit the implementation
+of the random number generator \textsf{Randombytes}
+and instead assume that the random seed $\delta$
+is provided from a higher level.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=.975\textwidth]{figs/sign.pdf}
+  \caption{High-level design overview of the \gls{MEDS} signing operation.}
+  \label{fig:sign}
+\end{figure}
+
+Similarly, in verification, we assume that byte deserialization
+of the input data for the public key \pk
+into the seed $\sigma_{\mat{G}_0}$ and deserialization of signed message
+$\signedmessage$ into $p$, $d$, $\alpha$, and $\mesg$
+are performed at a higher layer.
+
+We note that,
+in our hardware design,
+the operations
+\texttt{XOF},
+\texttt{ExpandInvMat},
+\texttt{SeedTree}, and \texttt{PathToSeedTree}
+share the same SHAKE256 module
+as shown in \cref{fig:sign}
+but that we use a separate SHAKE256 module that is shared between \texttt{ExpandSystMat}, \texttt{ParseHash}
+for the combined \texttt{Compress} and \texttt{Hash} operation
+(\cref{alg::sign::comm_hash} in \cref{alg:sign} and \cref{alg::verify::comm_hash} in \cref{alg:verify}).
+The reason for this will be described
+in the discussion of the loop pipeline
+later on in this section.
+
+The most expensive operations $\pi$ and \texttt{SF}
+are in the main for-loops
+of the sign and verify operations
+i.e., \cref{alg::sign::comm_start} to \cref{alg::sign::comm_end}
+in \cref{alg:sign} and \cref{alg::verify::comm_start} to \cref{alg::verify::comm_end}
+in \cref{alg:verify} respectively.
+Initially,
+we had considered
+to construct a large finite field vector \gls{ALU}
+for the use in both $\pi$ and \texttt{SF}.
+However,
+the required multiplexing and control logic
+likely would have been inefficient, complex,
+error prone, and hard to maintain.
+Also,
+$\pi$ requires about two times more finite field multiplications
+compared to \texttt{SF}
+but no finite field inversions
+and the different matrices
+that are systemized
+in \texttt{SF} and \texttt{ExpandInvMat}
+have different dimensions.
+A joint large finite field vector \gls{ALU}
+would hence lead to a less fine-grained control
+over performance vs.~area trade-offs
+between those operations.
+Therefore,
+to obtain high performance and high efficiency,
+we decided to implement this loop in a pipelined fashion
+with four pipeline stages.
+
+\medskip\noindent
+\textbf{Stage 1:}\ 
+%
+This stage consists of operations
+involved in \crefrange{alg::sign::startTildeABG}{alg::sign::gen_AB_end} of \cref{alg:sign} and \crefrange{alg::verify::munustart}{alg::verify::munuend} and  \crefrange{alg::verify::mucopy}{alg::verify::munuexit}  of \cref{alg:verify}. 
+In signing, first a leaf seed ($\sigma_i$)
+concatenated with the salt ($\alpha$)
+and the iteration number ($i$)
+is extended into two seeds 
+$\sigma_{\tilde{A}_i}$, $\sigma_{\tilde{B}_i}$
+using the \texttt{XOF} module. 
+Then $\sigma_{\tilde{A}_i}$ and $\sigma_{\tilde{B}_i}$
+are used to generate invertible matrices
+$\tilde{A}_i$ and $\tilde{B}_i$. 
+In our hardware design,
+we accomplish the generation of
+$\sigma_{\tilde{A}_i}$ and $\sigma_{\tilde{B}_i}$
+using the \texttt{SHAKE256} module
+and the \texttt{XOF} interface module
+by selecting the ``XOF mode''.
+The expanded seeds are stored in \texttt{sigmaAB} \gls{BRAM}.
+Then,
+the \texttt{ExpandInvMat} module
+uses the seed $\sigma_{\tilde{A}_i}$
+and the \texttt{XOF} interface
+and \texttt{SHAKE256} module
+by selecting the ``ExpandInvMat'' mode.
+This generates data for matrix $\tilde{A}_i$
+and the \texttt{Systemizer} module
+inside the \texttt{ExpandInvMat} module is used to check
+if the matrix is invertible or not.
+If it is not invertible then,
+the module draws another matrix
+from the current \texttt{SHAKE256} state
+and performs another check for invertability of the matrix.
+This process is repeated
+until an invertible matrix is found.
+Once it is ensured that the matrix is invertible
+then $\tilde{B}_i$ is generated in similar fashion.
+We note that, for each iteration $i$, we store the related $\sigma_i$ value in a BRAM inside Stage 1 for later use 
+in computing $\mu_i$ and $\nu_i$ matrices.
+
+In verification, if the value of $h_i = 0$ then all operations in stage 1 are
+similar to signing except here we use $\sigma_{\hat{A}_i}$ and
+$\sigma_{\hat{B}_i}$ and generate invertible matrices $\mu_{i}$ and $\nu_{i}$.
+And in the case of $h_i > 0$, we skip the sampling part inside the
+\texttt{ExpandInvMat} and instead copy the $\mu_{i}$ and $\nu_{i}$ from the
+input into the \gls{BRAM} where sampled $\mu_{i}$ and $\nu_{i}$ are stored and check
+for their invertability. In case the $\mu_{i}$ or $\nu_{i}$ are non-invertible,
+then a global ``systemization fail'' signal is generated, which will trigger ``invalid
+signature'' output.
+
+\medskip\noindent
+\textbf{Stage 2:}\ 
+%
+This stage consists of the $\pi$ operation
+(i.e., \cref{alg::sign::pi} of \cref{alg:sign} and \cref{alg::verify::pi} of \cref{alg:verify}). 
+In signing, this operation involves
+matrix multiplication of rows of $\mat{G}_0 \in \Fq{k \times mn}$
+with matrix $\mat{\tilde{A}}_i \in \Fq{m\times m}$
+and with $\mat{\tilde{B}}_i \in \Fq{n\times n}$.
+As shown in \cref{fig:sign},
+in our hardware design,
+this operation is accomplished
+by the \texttt{Pi} module using
+$\mat{G}_0$ from {\tt G0 BRAM}
+and $\mat{\tilde{A}}_i$, $\mat{\tilde{B}}_i$
+(generated in Stage~1).
+For verification,
+similar operations are performed as for signing
+except that $\mat{G}_{hi}$, $\mat{\mu}_{i}$, and $\mat{\nu}_{i}$
+are being processed
+in place of $\mat{G}_{0}$, $\mat{\tilde{A}}_{i}$, and $\mat{\tilde{B}}_{i}$.
+ 
+\medskip\noindent
+\textbf{Stage 3:}\ 
+%
+This stage consists of
+operation \textsf{SF}
+and the checking
+if the $\mat{\tilde{G}}_i$
+has systematic form
+(i.e., \cref{alg::sign::SF}
+of \cref{alg:sign} or \cref{alg::verify::SF} of \cref{alg:verify}).
+We use a \texttt{Systemizer} module
+(described in \cref{sec:systemizer})
+to compute the systematic form.
+As described in \cref{sec::syst_failure_prob},
+there is a possibility
+that the input matrix
+does not have a systematic form.
+We describe
+how we handle this situation
+in detail below.
+This step is the same
+for sign and verify
+with corresponding inputs.
+ 
+\medskip\noindent
+\textbf{Stage 4:}\ 
+%
+This stage consists
+of operations for compressing and hashing
+matrices $\mat{\tilde{G}}_i$
+together with the message \mesg
+(i.e., \cref{alg::sign::comm_hash}
+of \cref{alg:sign}).
+Although the compress and hash operation
+are not part of the for loop
+in the algorithm,
+in our hardware design
+we move the compression
+and the hash-absorb operation
+inside the for loop.
+This avoids the need
+to store all $\mat{\tilde{G}}_i$ values
+in the memory,
+which would require a significant amount
+of \gls{BRAM} storage on the FPGA.
+For this,
+we use a dedicated \texttt{SHAKE256} module
+for Stage 4.
+This \texttt{SHAKE256} module
+digests each $\mat{\tilde{G}}_i$
+and maintains the hash state.
+Hence,
+we only need to store
+one $\mat{\tilde{G}}_i$
+in the memory at a given time.
+This step is the same
+for sign and verify.
+ 
+
+\medskip\noindent
+After finishing all $t$ iterations of the loop,
+the message input is absorbed into the state as well
+and finally we squeeze the hash state
+to compute the hash value~$d$.
+ 
+\paragraph{Pipeline Control and Memory Buffering.}
+%
+The pipelined part of our hardware design
+is highlighted in blue in \cref{fig:sign}.
+The pipelining in our hardware design
+varies from the traditional register-based pipelining:
+Since the data we move
+from one stage to another
+are relatively large matrices,
+we use \glspl{BRAM}
+as buffers between the pipeline stages.
+These memory buffers
+are shown as blush pink blocks in \cref{fig:sign}.
+The \texttt{MemCopy} modules
+copy the data from the internal memories
+of each stage
+and move the data to the memory buffers,
+which can then be consumed in the next stage.
+
+As the workload of each stage is different,
+the number of clock cycles
+taken by each stage is also different.
+Therefore,
+to balance the clock cycles taken by each stage,
+we introduce the following five performance parameters:
+
+
+\begin{itemize}
+  \item[\sw:]
+     Stage~1 performance parameter
+     that corresponds to the performance parameter $p_\text{sys}$
+     (see \cref{sec:systemizer})
+     of the matrix systemizer
+     for checking the invertability
+     of ${\tilde{A}_i}$ and ${\tilde{B}_i}$ in the sign operation
+     respective $\mu_i$ and $\nu_i$
+     in verify.
+     \sw controls the number of rows and columns
+     in the processor array used inside the matrix systemizer.
+
+  \item[\sx:]
+    Stage 2 performance parameter
+    that corresponds to the performance parameter $\pimmperf$
+    (see \cref{sec:pi})
+    of the matrix multiplication unit
+    inside the \texttt{Pi} module.
+    \sx controls the vector width
+    inside the matrix multiplication unit.  
+
+  \item[\sm:]
+    Stage 2 performance parameter
+    that corresponds to the performance parameter $\pipmperf$
+    of the \texttt{Pi} module
+    used inside stage 2.
+    \sm controls number of matrix multiplications
+    performed in parallel.
+
+  \item[\sy:]
+    Stage 3 performance parameter
+    that corresponds to the performance parameter $p_\text{sys}$
+    (see \cref{sec:systemizer})
+    of the large $k \times m \cdot n$ matrix systemizer
+    used inside stage 3
+    for computing the systematic form of ${\tilde{G}_i}$ in sign
+    respective ${\hat{G}_i}$ in verify.
+    \sy controls the number of rows and columns
+    in the processor array used inside the matrix systemizer.
+
+  \item[\sz:] 
+    Stage 4 performance parameter
+    that corresponds to the shifter width
+    used inside the compress and hash module.
+    Larger \sz leads to fewer memory accesses
+    while compressing and hashing the matrices ${\tilde{G}_i}$ respective ${\hat{G}_i}$.
+\end{itemize}
+
+
+\paragraph{Choosing suitable performance parameters.} 
+%
+Recall that the goal behind choosing the performance parameters
+is to balance the pipeline stages
+so that all the modules in the pipeline
+are busy with their respective workloads.
+Let us look at the methodology we followed
+using the example
+(shown in \cref{tab::lat})
+for the Security Level I parameter sets:
+Firstly,
+we fix the value of $\sm = 1$
+and then we assign all possible values
+to \sw, \sx, \sy, and \sz
+based on the \gls{MEDS} parameters
+up to $m=n=k=14$
+as shown in \cref{tab::lat}.
+To further lower the latency of stage 2,
+the \sm parameter can be tweaked.
+The latencies reported in \cref{tab::lat}
+also include the clock cycles required
+for buffering data from one stage to another.
+Based on these latencies,
+we chose a value for each \sw, \sx, \sy, and \sz
+to meet our optimization goal
+(performance or resource consumption),
+
+As an example for parameters
+with moderate resource requirement,
+we can select
+$\sw = 1, \sx = 7, \sy = 6$, and $\sz = 6$
+(marked in \cref{tab::lat})
+%3
+such that the cycles counts are roughly equal.
+Setting $\sm = 4$ in this example
+brings down the cycle count of stage 2
+to about $\num{12132} / 4 = \num{3033}$
+(plus the unaffected overhead for data movement between the stages).
+
+Based on this method,
+we propose different configurations for specific parameter sets
+as well as for a unified design
+that aim at balancing the pipeline stages
+in all parameter sets
+as shown in \cref{tab::config}.
+We propose two variants of configurations:
+1) a balanced design choice and
+2) a high performance design choice
+as shown in \cref{tab::config}. The choice to parameters is not just limited to the combinations provided in \cref{tab::config}. Several such parameter combinations can be constructed based on resources available on the target device.
+We note that when selecting the parameters for a unified design,  to avoid resource wastage, we limit the values of parameters based on $m$, $n$, and $k$ values of smallest parameter set. 
+
+\begin{table}[t]
+  \centering
+  \caption{Latencies of all pipeline stages for the Security Level 1 parameter sets
+           with performance parameter $\sm = 1$.}
+  \label{tab::lat}
+  {
+     \fontsize{8pt}{9pt}\selectfont
+    
+
+
+% \documentclass{standalone}
+% 
+% \usepackage{tabularx, multirow, booktabs, makecell}
+% 
+% \begin{document}
+
+{%\setlength{\tabcolsep}{1.2ex} 
+\sisetup{table-auto-round,group-minimum-digits=4,group-digits=integer}
+\begin{widetable}{\textwidth}{@{}S[table-format=1]
+                                S[table-format=4]
+                                S[table-format=5]
+                                S[table-format=5]
+                                S[table-format=5]
+                                S[table-format=5]                              
+                             @{}}
+   \toprule
+   {$\sw = \sx = \sy  = \sz$} & {Stage 1} & {Stage 2} & {Stage 3} & {Stage 4}   \\   
+   \toprule
+  %  \midrule
+    1 & \cellcolor{black!10} 3534    & 83364   & 48191   & 16599   \\
+    2 & 1432    & 41812   & 14877   & 8521    \\
+    3 & 1142    & 29926   & 8350    & 5883    \\
+    4 & 1104    & 23990   & 5702    & 4503    \\
+    5 & 1042    & 18054   & 4020    & 3751    \\
+    6 & 1120    & 18054   & \cellcolor{black!10} 3557    & \cellcolor{black!10} 3178    \\
+    7 & 980     & \cellcolor{black!10} 12132   & 2477    & 2782    \\
+    8 & 1032    & 12118   & 2294    & 2522    \\
+    9 & 1084    & 12118   & 2153    & 2484    \\
+   10 & 1136    & 12118   & 2054    & 2371    \\
+   11 & 1188    & 12118   & 1955    & 2652    \\
+   12 & 1240    & 12118   & 1912    & 2197    \\
+   13 & 1292    & 12118   & 1869    & 2137    \\
+   14 & 975     & 6195    & 1643    & 1796   \\
+
+  \bottomrule
+\end{widetable}}
+
+% \end{document}
+
+  }
+\end{table}
+
+\begin{table}[t]
+  \centering
+  \caption{Configuration table showing selected configurations for $\sw, \sx,
+           \sy, \sz, \sm$ and idle percentages for the different stages for each
+           configuration. In case of the unified design the idle percentages are
+           average of different security levels.}
+  \label{tab::config}
+  {
+     \fontsize{8pt}{10pt}\selectfont
+     
+
+
+% \documentclass{standalone}
+% 
+% \usepackage{tabularx, multirow, booktabs, makecell}
+% 
+% \begin{document}
+
+  \centering
+  \setlength{\tabcolsep}{0.6ex} 
+  % \sisetup{table-auto-round,group-minimum-digits=4,group-digits=integer}
+ \begin{tabularx}{\textwidth}{@{}
+ 				         l
+                 l
+                 c
+                 S[table-format=1]
+                 S[table-format=2]
+                 S[table-format=2]
+                 S[table-format=2]
+                 S[table-format=1]
+                 c
+                 c
+                 c
+                 c
+                 @{}} 
+ \toprule
+  \multirow{2}{*}{\bf Design Choice} & \multirow{2}{*}{\textbf{Parameter Set}} &  \multirow{2}{*}{$q$} & \multicolumn{5}{c}{\textbf{Perf. Metrics}} & \multicolumn{4}{c}{{\textbf{Stage-wise Idle \%}}}  \\%& \sw & \sx & \sy & \sz & \sm\\
+ \cmidrule(lr){4-8} \cmidrule(lr){9-12}
+  & & & \sw & \sx & \sy & \sz & \sm & {\bf 1} & {\bf 2} & {\bf 3} & {\bf 4} \\
+  \toprule
+\multirow{4}{*}{\bf Balanced} & Level I                 & 4093   & 1 & 7  & 6  & 6  & 3 & {3.6\%} & {0.0\%} & {3.4\% } & {6.1\% } \\ 
+                              &  Level III              & 4093   & 1 & 11 & 8  & 9  & 5 & {0.5\%} & {1.7\%} & {0.0\% } & {0.5\% } \\ 
+                              & Level V                 & 2039   & 1 & 10 & 10 & 12 & 5 & {0.0\%} & {4.4\%} & {2.8\% } & {5.8\% } \\ [2pt]
+                              & {Unified Level I--V}    & {both} & 1 & 10 & 10 & 12 & 5 & {3.4\%} & {5.5\%} & {15.4\%} & {15.7\%} \\
+ \midrule
+\multirow{4}{*}{\bf High Perf.} &  Level I              & 4093   & 2 & 14 & 14 & 14 & 4 & {5.7\% } & {3.8\%} & {2.4\% } & {0.0\% } \\
+                                & Level III             & 4093   & 2 & 11 & 22 & 22 & 8 & {1.5\% } & {0.3\%} & {0.0\% } & {3.9\% } \\
+                                & Level V               & 2039   & 2 & 15 & 14 & 15 & 8 & {0.2\% } & {2.7\%} & {0.6\% } & {0.0\% } \\[2pt]
+                                & {Unified Level I--V}  & {both} & 2 & 14 & 14 & 14 & 4 & {18.4\%} & {1.3\%} & {17.5\%} & {13.9\%} \\
+  
+ \bottomrule
+ %\hline
+ %\hline
+ \end{tabularx}
+% \end{tabular}}
+
+% \end{document}
+
+  }
+\end{table}
+ 
+
+\paragraph{Data flow.}
+%
+To cope with the different ready-times
+of each stage
+that results from the different cycle counts,
+we resort to a handshake-based control mechanism
+to control the flow of data between the stages.
+After each stage is done with its computation,
+it sends a handshake signal to the next stage
+to indicate that the output data is ready for consumption
+and waits for the response from the next stage.
+This handshake mechanism
+is handled by the \texttt{PipelineController} module
+shown in \cref{fig:sign}.
+
+As mentioned above
+in Stage 3,
+an additional challenge
+in the pipeline design
+is the handling of possible systemization failures
+in some iteration $i$ in Stage 3.
+In this case,
+we need to repeat the operations
+of the previous stages
+starting again at iteration $i$.
+We flush all the data from Stages 1 and 2,
+which are working on data
+that belongs to iterations $i+1$ and $i+2$,
+restart Stage 1 from iteration $i$,
+and step by step refill the pipeline.
+Stage 4 is not affected by this
+as it is working on data that belongs to iteration $i-1$.
+The reason we restart from iteration $i$ is
+because of the on-the-fly \texttt{CompressHash} operation
+in Stage 4.
+The data fed into the \texttt{SHAKE256} module
+has to be in sequential order
+to produce the correct hash value.
+This means that we would need memory buffers
+after Stage 3
+to store data related to iterations $i+1$ and $i+2$
+and wait until data from iteration $i$ becomes ready
+to be loaded into module \texttt{CompressHash}.
+We avoid this expensive memory buffering
+by simply restarting the pipeline. 
+As the failure probability of the systemizer is low
+(as specified in \cref{sec::syst_failure_prob}),
+the overhead of restarting the pipeline is marginal.
+To restart Stage 1 with iteration $i$,
+Stage 1 requires to backup the seed for $i$,
+i.e., $\sigma_{i}$ generated in \cref{alg::sign::seed_xof}
+of \cref{alg:sign}.
+After Stage 3 has completed successfully,
+the stored $\sigma_{i}$ is discarded.
+The logic related to flushing and restaring
+is also handled by the \texttt{PipelineController} module. 
+
+\paragraph{Other operations.}
+%
+After the loop is finished,
+the \texttt{CompressHash} module
+requests the message \mesg as data stream 
+from input port \texttt{message\_in}
+and the message is loaded
+into the \texttt{SHAKE256} module
+to compute the hash value $d$.
+Following that, for verification, this $d$ value is compared against the input $d$ 
+value to ensure the verfication of the signature. Where as for signing,
+the value $d$ is then loaded
+into the \texttt{ParseHash} module
+shown in \cref{fig:sign},
+which parses the hash value
+and generates the vector $h$.
+The \texttt{\tt ParseHash} module
+also captures $i$ values where $h_i > 0$
+while generating $t$.
+This is useful
+for the following computation
+of $\mu_i$ and $\nu_i$.
+Rather than iterating over all $t$ values,
+we only iterate over the $w$ indices where $h_i > 0$.
+To compute matrices $\mu_i$ and $\nu_i$,
+  We first generate the matrices $\mat{\tilde{A}}_i$ and $\mat{\tilde{B}}_i$ using 
+  the $\sigma_i$ seeds stored in Stage 1 and by reusing the logic from Stage 1. 
+  The reason for regenerating the matrices $\mat{\tilde{A}}_i$ and $\mat{\tilde{B}}_i$ 
+  is to avoid storing the $t$ - $n \times n$ matrices and $t$ - $m \times m$ matrices, 
+  which would otherwise consume a significant amount of BRAM. Therefore, we opted for 
+  regenerating the matrices instead.
+Then,
+we reuse the \texttt{MatMul} units
+of the \texttt{Pi} module.
+The result is then stored
+in \glspl{BRAM} \texttt{mu} and \texttt{nu} respectively.
+If the \texttt{Pi} module
+is configured to use
+multiple matrix multiplication units,
+the \texttt{MuNuComputation} module
+computes $\mu_i$ and $\nu_i$ matrices in parallel.
+In parallel to the computation of $\mu_i$ and $\nu_i$,
+the $h$ vector along with $\rho$ and $\alpha$
+are loaded into the \texttt{SeedTreeToPath} module,
+which generates the seed path.
+The $\mu_i$, $\nu_i$, $p$, $d$, $\alpha$ values
+finally can be accessed
+by a top-level module
+through the output ports {\tt mu}, {\tt nu}, {\tt path}, {\tt d}, and {\tt alpha} respectively
+as shown in \cref{fig:sign}.
+
+
+\section{Evaluation}
+\label{sec::eval}
+
+
+\begin{table}[p]
+\centering
+\begin{adjustwidth}{-1cm}{}
+{
+  \fontsize{8pt}{10pt}\selectfont
+  
+
+
+% \documentclass{standalone}
+% 
+% \usepackage{tabularx, multirow, booktabs, makecell}
+% 
+% \begin{document}
+%
+{\setlength{\tabcolsep}{1ex} 
+\sisetup{table-auto-round,group-minimum-digits=4,group-digits=integer}
+\begin{tabularx}{\linewidth}{@{}
+                                X
+                                S[table-format=2.1]
+                                S[table-format=3]
+                                S[table-format=2.1]
+                                S[table-format=3]
+                                S[table-format=4]
+                                S[table-format=4.1]
+                                S[table-format=3]
+                                S[table-format=4.1]
+                                S[table-format=3]
+                                S[table-format=3]
+                                S[table-format=2.1]
+                                S[table-format=2.1]
+                             @{}
+}
+
+  \toprule
+   \multirow[c]{3.8}{*}{\makecell{\textbf{MEDS}\\\textbf{Parameter Set}}}
+   %\textbf{MEDS} 
+      & \multicolumn{4}{c}{\textbf{Resources}} & \multicolumn{5}{c}{\textbf{Time}} & \multicolumn{3}{c}{\textbf{Improvment}} \\
+   \cmidrule(lr){2-5} \cmidrule(lr){6-10} \cmidrule(lr){11-13}
+   %\textbf{Param.} 
+      & \multicolumn{2}{c}{\textbf{Area}} &
+\multicolumn{2}{c}{\textbf{Memory}}  & {\bf Freq.} & \multicolumn{2}{c}{\textbf{Sign}} & \multicolumn{2}{c}{\textbf{Verify}} & {\bf cyc} & {\bf t} & {\textbf{T$\times$A}} \\
+   \cmidrule(lr){2-3} 
+   \cmidrule(lr){4-5}
+   \cmidrule(lr){7-8}
+   \cmidrule(lr){9-10}
+  %  \cmidrule(lr){11-12}
+   %\textbf{Set} 
+      & {LUT} &{DSP} & {FF} & {BRAM} & {MHz} & {Mcyc} & {ms}& {Mcyc} & {ms} &  &  &  \\
+      & {$\times 10^3$} &{} & {$\times 10^3$} & {} & {} & {} & {}& {} &  &  &  & {$\times 10^6$} \\
+   \toprule
+  % \multicolumn{11}{c}{\textbf{ Specific Design}} \\ \midrule
+%    \multicolumn{13}{c}{\textbf{ Security Level I }}\\ \midrule
+    \multicolumn{13}{c}{\textbf{Balanced -- \{\sw, \sx, \sy, \sz, \sm\} = \{1, 7, 6, 6, 3\}}}\\
+			
+			
+MEDS-9923     & 24.3 & 66  & 20.5 & 111.5   & 116 & 7.5 & 65 & 7.4 & 64 & 69 & 4.1 & 3.1\\
+MEDS-13220    & 21.6 & 66  & 19.5 & 69.5    & 130 & 1.3 & 10 & 1.2 & 10 & 68 & 4.6 & 0.4 \\
+\midrule
+\multicolumn{13}{c}{\textbf{High Performance -- \{\sw, \sx, \sy, \sz, \sm \} = \{2, 14, 14, 14, 3\}}}\\
+MEDS-9923  & 46.8 & 259 & 44.8 & 192.5   & 115 & 3.3 & 29 & 3.3 & 29 & 154 & 9.3  & 2.7 \\
+MEDS-13220 & 44.1 & 259 & 43.8 & 150.5   & 132 & 0.6 & 4  & 0.6 & 4  & 154 & 10.6 & 0.4 \\
+\toprule
+%\multicolumn{13}{c}{\textbf{ Security Level III}}\\    \midrule
+\multicolumn{13}{c}{\textbf{Balanced -- \{\sw, \sx, \sy, \sz, \sm \} = \{1, 11, 8, 9, 5\}}} \\
+MEDS-41711    & 34.0 & 130 & 31.2 & 205.5& 123 & 9.8 & 80 & 9.5 & 78 & 151 & 9.8  & 5.3 \\
+MEDS-69497    & 33.1 & 130 & 30.7 & 187	 & 125 & 2.9 & 23 & 2.5 & 20 & 141 & 9.2 & 1.4 \\
+\midrule
+\multicolumn{13}{c}{\textbf{High Performance -- \{\sw, \sx, \sy, \sz, \sm \} = \{2, 11, 22, 22, 8\}}}\\
+MEDS-41711 & 80.5 & 601 & 91.0 & 204.5	 & 129 & 6.1 & 47 & 5.9 & 46 & 242 & 16.4 & 7.6\\ 
+MEDS-69497 & 79.6 & 601 & 90.5 & 186	   & 129 & 1.8 & 14 & 1.5 & 12 & 227 & 15.4 & 2.1\\
+\toprule
+%\multicolumn{13}{c}{\textbf{ Security Level V }}\\  \midrule
+\multicolumn{13}{c}{\textbf{Balanced -- \{\sw, \sx, \sy, \sz, \sm \} = \{1, 10, 10, 12, 5\}}}\\
+MEDS-134180   & 38.3 & 163 & 39.5 & 284.5   & 130 & 11.2 & 87 & 9.0 & 70 & 160 & 10.9 & 5.9 \\
+MEDS-167717   & 38.0 & 163 & 39.4 & 327.5   & 133 & 8.1  & 61 & 5.3 & 40 & 141 & 9.8  & 3.9 \\
+\midrule
+\multicolumn{13}{c}{\textbf{High Performance -- \{\sw, \sx, \sy, \sz, \sm \} = \{2, 15, 14, 15, 8\}}}\\
+MEDS-134180 & 61.5 & 337 & 60.9 & 290   & 127 & 5.4 & 43 & 4.5 & 36 & 322 & 21.5 & 4.9 \\
+MEDS-167717 & 60.6 & 337 & 60.9 & 288   & 131 & 3.9 & 29 & 2.7 & 21 & 290 & 19.9 & 3.0 \\
+\toprule
+\multicolumn{13}{c}{\textbf{ Unified Design}} \\ \midrule
+\multicolumn{13}{c}{\textbf{Balanced -- \{\sw, \sx, \sy, \sz, \sm\} = \{1, 10, 10, 12, 5\}}}\\
+%All & 44930 & 164 & 42485 & 340   & 113 &      \\
+MEDS-9923   & {\multirow{6}{*}{\num{44.8}}} 
+            & {\multirow{6}{*}{\num{163}}} 
+            & {\multirow{6}{*}{\num{43.1}}} 
+            & {\multirow{6}{*}{\num{344.5}}} 
+            & {\multirow{6}{*}{\num{113}}} 
+                          & 5.2  & 46  & 5.1  & 46  & 100 & 5.9  &  4.1\\
+MEDS-13220  &  &  &  &  & & 0.9  & 8   & 0.8  & 8   & 98  & 5.8       &  0.7\\
+MEDS-41711  &  &  &  &  & & 13.4 & 119 & 13.1 & 116 & 110 & 6.5       &  10.6\\
+MEDS-69497  &  &  &  &  & & 3.8  & 34  & 3.4  & 31  & 105 & 6.2       &  2.9\\
+MEDS-134180 &  &  &  &  & & 11.2 & 100 & 9.0  & 80  & 160 & 9.4       &  8.0\\
+MEDS-167717 &  &  &  &  & & 8.1  & 72  & 5.3  & 47  & 141 & 8.3       &  5.3\\
+
+\midrule
+\multicolumn{13}{c}{\textbf{High Performance -- \{\sw, \sx, \sy, \sz, \sm \} = \{2, 14, 14, 14, 4\}}}\\
+MEDS-9923   & {\multirow{6}{*}{\num{72.8}}} 
+            & {\multirow{6}{*}{\num{273}}} 
+            & {\multirow{6}{*}{\num{63.4}}} 
+            & {\multirow{6}{*}{\num{386.5}}} 
+            & {\multirow{6}{*}{\num{113}}} 
+                          & 3.3  & 33  & 3.3  & 33  & 154 & 8.2 & 4.2 \\
+MEDS-13220  &  &  &  &  & & 0.5   & 6  & 0.5  & 5   & 154 & 8.2      & 0.7 \\
+MEDS-41711  &  &  &  &  & & 10.2 & 100 & 10.1 & 99  & 144 & 7.7      & 12.9 \\
+MEDS-69497  &  &  &  &  & & 2.7  & 27  & 2.6  & 25  & 145 & 7.7      & 3.3 \\
+MEDS-134180 &  &  &  &  & & 11.1 & 109 & 10.7 & 104 & 149 & 7.9      & 13.7 \\
+MEDS-167717 &  &  &  &  & & 6.7  & 67  & 6.2  & 61  & 146 & 7.8      & 8.2 \\
+\toprule
+   \multicolumn{13}{c}{\textbf{Reference Software Implementation on an AMD Ryzen 7 PRO 5850U CPU} \cite{NISTPQC-ADD-R1:MEDS23}} \\
+   %\multicolumn{13}{c}{\textbf{Reference Software Implementation}} \\
+   %\multicolumn{13}{c}{\textbf{on an AMD Ryzen 7 PRO 5850U CPU} \cite{NISTPQC-ADD-R1:MEDS23}} \\
+\midrule
+MEDS-9923   & {---} & {---} & {---} & {---} & 1900 &  518.0 &  273 &  515.5 &  271 & {---} & {---} & {---} \\ 
+MEDS-13220  & {---} & {---} & {---} & {---} & 1900 &   88.9 &   47 &   87.4 &   46 & {---} & {---} & {---} \\ 
+MEDS-41711  & {---} & {---} & {---} & {---} & 1900 & 1467.0 & 772  & 1461.9 & 769  & {---} & {---} & {---} \\ 
+MEDS-55604  & {---} & {---} & {---} & {---} & 1900 &  387.2 &  204 &  380.7 &  200 & {---} & {---} & {---} \\ 
+MEDS-134180 & {---} & {---} & {---} & {---} & 1900 & 1629.8 & 858  & 1612.5 & 849  & {---} & {---} & {---} \\ 
+MEDS-167717 & {---} & {---} & {---} & {---} & 1900 &  961.8 &  506 &  938.8 &  494 & {---} & {---} & {---} \\ 
+   
+  \bottomrule
+
+\end{tabularx}
+}
+
+% \end{document}
+
+}
+
+  \caption{%
+    Performance data
+    for our \texttt{Sign} and \texttt{Verify} modules
+    targeting a Xilinx Artix 7 (\texttt{xc7a200t}) FPGA. 
+    Improvements are calculated as
+    $T \times A = (t_{sign} + t_{verify})\times LUT$
+    $cyc = \frac{(Sign + Verify\ Cycles\ for\ Software)}{(Sign + Verify\ Cycles\ for\ Hardware)}$,
+    $t = \frac{(Sign + Verify\ time\ for\ Software)}{(Sign + Verify\ time\ for\ Hardware)}$.
+  }
+  \label{tab:sign}
+\end{adjustwidth}
+\end{table}
+
+
+\Cref{tab:sign} shows the time and area results
+for our MEDS signing and verification hardware
+design for all parameter sets
+targeting an AMD {\tt xc7a200t-3} FPGA.
+We note that the maximum clock frequency
+is limited by two different factors:
+1)~In case of MEDS-9923,
+the critical path lies inside the duplicate detection logic
+inside the {\tt ParseHash} module.
+We use a bit-vector mapping technique
+to perform the duplicate detection
+and since the value $t$ is large in case of MEDS-9923,
+the fully combinatorial variable shifter and comparator is quite large.
+2)~In all other cases,
+the critical path lies inside the sampling unit
+of \texttt{XOF} interface.
+
+As discussed in \cref{sec:signing},
+we propose two different design variants
+for our implementation:
+``Balanced'' and ``High Performance''.
+The results for these choices
+are presented in \cref{tab:sign}.
+While the high performance design
+requires only \SIrange{4.5}{29.5}{\milli\second}
+for signing and a similar amount of time for verification,
+it also takes up significant resources,
+mainly in terms of \gls{BRAM} utilization.
+We note that while the storage
+required for the data
+remains the same in both the design choices,
+due to the wider memory word width
+in the High Performance variant,
+the synthesis tool needs to use multiple \gls{BRAM} units.
+
+Additionally,
+for each of the design variants,
+the design allows further flexibility
+to be synthesized for a specific parameter set
+or for a unified design that allows us
+to choose any of the six different parameter choices at run-time.
+While the unified design
+does not impact the cycles taken for signing and verification
+compared to specific designs,
+it does have an impact on resource utilization.
+However,
+it can be seen from \cref{tab:sign}
+that the resource utilization of the unified design
+is close to the utilization
+of the parameter set specific designs
+for the biggest parameter sets
+(i.e., MEDS-134180 and MEDS-167717). 
+ 
+We note that to the best of our knowledge
+this is the first and only MEDS hardware implementation.
+Therefore,
+our primary comparison
+is with the optimized software implementation
+provided along with the MEDS specification \cite{NISTPQC-ADD-R1:MEDS23}.
+We note that
+while our design is running at a frequency range
+of \SIrange{115}{133}{\mega\hertz},
+the software implementations results are reported
+for a CPU running at a frequency of \SI{1.9}{\giga\hertz}.
+We note that both of our design choices
+outperform the optimized software implementation
+by a significant margin
+as shown in \cref{tab:sign}. 
+Our hardware implementation 
+achieves a speed-up of $69\times$ to $322\times$ in sign + verify cycles compared to the software implementation. 
+Similarly, it achieves a speed-up of $4.1\times$ to $21.5\times$ in sign + verify time, despite operating at a 
+significantly lower frequency than the processor used in the software implementation. This answers \cref{RQ:1} positively, showing that MEDS algorithms provide inherent parallelism which 
+can be exploited through hardware implementation to provide substantial speed-up as demonstrated by our results (in \cref{tab:sign}).
+
+\paragraph{Comparison to Related Work.}
+%
+\Cref{tab_related_work_compare} presents a comparison to a number of other
+\gls{PQC} signature schemes that have been
+presented in literature.
+We are unaware of other MEDS hardware implementations,
+so no other MEDS works are included in the table.
+Many works present data for the same XC7A100T FPGA that we use
+and they generally report similar frequencies as we.
+Specific comparisons with these schemes to our implementation
+is difficult as different schemes
+are based on different mathematical problems.
+Further,
+some related works use high-end FPGAs,
+which generally give much better performance.
+
+
+\afterpage{%
+\begin{landscape}
+\begin{table}[p]
+\centering
+\footnotesize
+
+\sisetup{table-auto-round,group-minimum-digits=4,group-digits=integer}
+\setlength{\tabcolsep}{0.6ex} 
+\begin{widetable}{\textwidth}{
+             @{}
+             c
+             c
+             c
+             S[table-format=3]
+             S[table-format=5.2]
+             S[table-format=3.2]
+             c
+             c
+                             @{}
+}
+\toprule
+
+\textbf{Design} & \textbf{Algorithm}                 & \textbf{FPGA} & \textbf{Freq.} & \textbf{Sign} & \textbf{Verify} & \textbf{Resources} & \textbf{T$\times$A} \\
+                &                                    &               & {(MHz)} &  {(ms)}              &  {(ms)} & {(LUT/FF/DSP/BR)} & \\%$\frac{(t_s + t_v)\times LUT}{10^6}$\\[0.4ex]
+% \hline
+
+\toprule
+
+ \cite{TCHES:BCHKPSY23} & ov-Ip-pkc                           & XC7A200T & 100 & 0.08 & 0.69         &  37k/25k/2/81                            &\phantom{1,,}0.03\\
+ \cite{TCHES:BCHKPSY23} & ov-V-pkc+skc                        & XC7A200T & 100 & 28.57 & 3.93        &  83k/41k/4/359                           &\phantom{1,,}2.70\\
+\midrule                    
+
+ \cite{DBLP:conf/cosade/SayariMAKS24} & MAYO 1                 & Arm/Zynq-7020 & 100   & 28.6 & {---}   & 21k/13k/11/129                        &\phantom{1,,}0.60\\
+ \cite{cryptoeprint:2023/1267} & MAYO 1                        & Artix-7 & 75   & 0.43 & 0.05      & 106k/38k/2/45.5                            &\phantom{1,,}0.05\\
+\midrule                    
+
+ \cite{DBLP:journals/tches/DeshpandeHSY24} & SDitH L1 GF256   & XC7A200T & 164   & 41.0 & 52.9     & 17k/9k/0/164.5                             &\phantom{1,,}1.60\\
+ \cite{DBLP:journals/tches/DeshpandeHSY24} & SDitH L3 GF251   & XC7A200T & 164   & 276.1 & 183.6   & 34k/31k/472/521.5                          &\phantom{1,}15.63\\
+\midrule
+
+ \cite{SP:dPRS23} & Raccoon-128  2 shares                  & RISC-V/XC7A100T & 78   & 30.7 & 18.4        & \multirow{ 2}{*}{10k/4k/3/---}       &\phantom{1,,}0.49\\
+ \cite{SP:dPRS23} & Raccoon-128 32 shares                  & RISC-V/XC7A100T & 78   & 284.10 & 17.86     &                                      &\phantom{1,,}3.02\\
+\midrule 
+
+ \cite{SAC:WJWDGSN19} & XMSS SHA256 $h=10$            & RISC-V/Cyclone V & 145   & 9.95 & 5.80      & 7k/10k/---/145                            &\phantom{1,,}0.11\\
+\midrule 
+
+ \cite{DBLP:conf/cardis/LandSG21} & Dilithium-III F           & XC7A100T & 145   & 0.85 & 0.23       & 30k/11k/45/21                            &\phantom{1,,}0.03\\
+ \cite{DBLP:conf/fpt/BeckwithNG21} & Dilithium-V              & Artix-7 & 116   & 0.21 & 0.12        & 53k/28k/16/29                            &\phantom{1,,}0.02\\
+\midrule 
+
+ \cite{DBLP:journals/iacr/Saarinen24} & SLH-DSA-SHAKE-128f & RISC-V/XC7A100T & 100   & 49.0 & 4.4        & \multirow{ 2}{*}{14k/---/---/---}    &\phantom{1,,}0.75\\
+ \cite{DBLP:journals/iacr/Saarinen24} & SLH-DSA-SHA2-256s & RISC-V/XC7A100T & 100   & 69620.1 & 8.9      &                                      &974.81\\
+\midrule
+
+ \cite{DBLP:conf/dsd/AmietLCZ20} & SPHINCS+-128f-simple       & XC7A100T & 250  & 1.01 & 0.16        & 48k/73k/1/11.5                           &\phantom{1,,}0.06\\
+ \cite{DBLP:conf/dsd/AmietLCZ20} & SPHINCS+-256s-robust       & XC7A100T & 250  & 36.1 & 0.20        & 50k/76k/1/30                             &\phantom{1,,}1.82\\
+\midrule
+
+ \cite{DBLP:journals/iacr/SchmidAWZW23} & Falcon-512          & ZCU104 & 187.5  & 4.2 & {---}       & 23k/26k/101/23                            &\multirow{2}{*}{\phantom{1,,}0.17}\\
+ \cite{DBLP:journals/iacr/SchmidAWZW23} & Falcon-512          & ZCU104 & 214.3  & {---} & 0.62      & 12k/8k/15/13                              &\\
+ \cite{DBLP:journals/iacr/SchmidAWZW23} & Falcon-1024         & ZCU104 & 187.5  & 8.7 & {---}       & 45k/41k/182/37                            &\multirow{2}{*}{\phantom{1,,}0.58}\\
+ \cite{DBLP:journals/iacr/SchmidAWZW23} & Falcon-1024         & ZCU104 & 214.3  &{---} & 1.3        & 13k/9k/2/4                                &\\
+
+\bottomrule
+
+\end{widetable}
+
+
+
+\caption{Existing FPGA-based hardware implementations of various PQC signature
+         schemes. For the listed related work, if the prior work implemented
+         different variants of an algorithm, the fastest design is listed. The
+         ``---'' indicates that the corresponding parameter was not specified or
+         not implemented. {\bf T$\times$A} = $\frac{(t_{sign} + t_{verify})\times LUT}{10^6}$}
+\label{tab_related_work_compare}
+\end{table}
+\end{landscape}
+}
+
+Compared to the hardware (co-)designs
+of some other \gls{PQC} schemes
+shown in \cref{tab_related_work_compare},
+our hardware implementation of \gls{MEDS} 
+(results shown in \cref{tab:sign}) makes MEDS a competitive choice when the time area product ({\bf T$\times$A}) is considered.
+Some of the other designs are much more efficient
+than our implementation,
+however
+this is due to the high computational cost
+inherent to the \gls{MEDS} specification
+in particular compared to lattice-based schemes.
+Nevertheless,
+the performance of our implementation
+is comparable to several other \gls{PQC} schemes
+such as SPHINCS+/SLH-DSA, SDitH, and Raccoon.
+We believe that this shows
+that the quality of our implementation
+is on par with other work in this field.
+
+Our results emphasize that \gls{MEDS} is computationally expensive
+but that \gls{FS}-schemes with a large round number
+can be parallelized efficiently
+and can achieve high performance (at high resoruce cost).
+Possible future works include
+the implementation of key generation
+and of recent proposals
+for the optimization of \gls{MEDS}
+as well as the exploration
+of supporting different fields
+in one joint design
+for other applicable schemes
+such as
+CROSS \cite{NISTPQC-ADD-R2:CROSS24},
+LESS \cite{NISTPQC-ADD-R2:LESS24},
+and PERK \cite{NISTPQC-ADD-R2:PERK24}.
+
+
+\section{Conclusion}
+\label{sec::concl}
+
+In the introduction in \cref{sec:intro},
+we raised three research questions:
+
+\medskip\noindent
+\Cref{RQ:1} asks
+if there is sufficient inherent parallelism in \gls{MEDS}
+to speed up the sign and verify operations.
+Given that there is plenty parallelism on the low level
+multiplying and systemizing matrices
+as well as on the high level
+iterating over $t$ independent computations,
+there is indeed ample opportunity to accelerate \gls{MEDS}.
+We provide performance parameters
+to control the low level parallelization
+and we pipeline the main loop,
+achieving a significant speed up
+for \gls{MEDS} signing and verification.
+For e.g., for security level I, our balanced design achieves a speed-up of $4$-$5\times$ for both signing and verification times, whereas our high-performance design achieves a speed-up of $9$-$10\times$ for both signing and verification times when compared to the optimized software reference implementation. Notably, these gains are achieved while our design operates in the frequency range of \SI{115} MHz to \SI{132} MHz, whereas the optimized software implementation runs at $1.9$ GHz. 
+However,
+\ref{RQ:1} also asks about the resource cost
+of accelerating \gls{MEDS}.
+Since the computational cost
+of \gls{MEDS} sign and verification
+is significant,
+selecting large performance parameters
+for a high-performance design
+results in high resource cost.
+
+\medskip\noindent
+\Cref{RQ:2} asks
+to what extent resources can be shared
+between the sign and verify operations
+in a shared design
+implementing both operations.
+Since the main loop operates very similar
+in both sign and verify,
+the resources of sign
+can be reused by verify
+with only little control logic overhead.
+Sign requires some additional computations
+at the end
+to compute the responses for the signature,
+which can simply be skipped by verify.
+
+\medskip\noindent
+\Cref{RQ:3} asks
+about the overhead of supporting all parameter sets
+selectable at runtime
+in a single joint design.
+The overhead for additional control logic
+for supporting different matrix dimensions
+and challenge lengths
+is marginal.
+%
+To our surprise,
+supposing arithmetic in multiple prime fields
+also comes at only a small overhead
+as for the fields specified in \gls{MEDS},
+most resources can be shared
+between both fields.
+Only slightly more logic
+than needed for the larger field
+is required to support both fields.
+We conclude that
+---
+if the fields are chosen carefully
+---
+supporting multiple fields
+in a joint hardware implementation
+is very much feasible.
+Specifically our results show
+that arithmetic for
+pseudo-Mersenne primes
+with small Hamming distance
+can be implemented jointly
+with small overhead.
+
+
+
+%
+%\begingroup
+%\makeatletter
+%\def\@thefnmark{} \@footnotetext{
+%\footnotesize{%
+\section*{Acknowledgements}
+This research has been partially supported
+by the US government
+through NSF grant 2332406,
+by the Korean government
+through
+the BK21 FOUR Education and Research Program for Future ICT Pioneers,
+the IITP grant IITP-2023-RS-2023-00256081,
+and the NRF grant RS-2023-00277326,
+and
+by the Taiwanese government through the NSTC grant
+113-2221-E-001-024-MY3.
+%}}
+%\endgroup
+%%
+
+\newcommand{\etalchar}[1]{$^{#1}$}
+\begin{thebibliography}{CNP{\etalchar{+}}23b}
+
+\bibitem[ABB{\etalchar{+}}24]{NISTPQC-ADD-R2:PERK24}
+Najwa Aaraj, Slim Bettaieb, Lo\"{i}c Bidoux, Alessandro Budroni, Victor
+  Dyseryn, Andre Esser, Thibauld Feneuil, Philippe Gaborit, Mukul Kulkarni,
+  Victor Mateu, Marco Palumbi, Lucas Perin, Matthieu Rivain, {Jean-Pierre}
+  Tillich, and Keita Xagawa.
+\newblock {PERK}.
+\newblock Technical report, {N}ational {I}nstitute of {S}tandards and
+  {T}echnology, 2024.
+\newblock available at
+  \url{https://csrc.nist.gov/Projects/pqc-dig-sig/round-2-additional-signatures}.
+
+\bibitem[ADKF70]{ArlazarovEtAl1970}
+V.~Arlazarov, E.~Dinic, M.~Kronrod, and I.~Faradzev.
+\newblock {On economical construction of the transitive closure of a directed
+  graph}.
+\newblock {\em Soviet Mathematics Doklady}, 11(5):1209--1210, 1970.
+
+\bibitem[ALCZ20]{DBLP:conf/dsd/AmietLCZ20}
+Dorian Amiet, Lukas Leuenberger, Andreas Curiger, and Paul Zbinden.
+\newblock {FPGA}-based {SPHINCS}\({}^{\mbox{+}}\) {I}mplementations: Mind the
+  {G}litch.
+\newblock In {\em 23rd Euromicro Conference on Digital System Design, {DSD}
+  2020, Kranj, Slovenia, August 26-28, 2020}, pages 229--237. {IEEE}, 2020.
+
+\bibitem[AMI{\etalchar{+}}23]{9946370}
+Aikata Aikata, Ahmet~Can Mert, Malik Imran, Samuel Pagliarini, and Sujoy~Sinha
+  Roy.
+\newblock {KaLi: A Crystal for Post-Quantum Security Using Kyber and
+  Dilithium}.
+\newblock {\em IEEE Transactions on Circuits and Systems I: Regular Papers},
+  70(2):747--758, 2023.
+
+\bibitem[BBB{\etalchar{+}}24a]{NISTPQC-ADD-R2:CROSS24}
+Marco Baldi, Alessandro Barenghi, Michele Battagliola, Sebastian Bitzer, Marco
+  Gianvecchio, Patrick Karl, Felice Manganiello, Alessio Pavoni, Gerardo
+  Pelosi, Paolo Santini, Jonas Schupp, Edoardo Signorini, Freeman Slaughter,
+  Antonia {Wachter-Zeh}, and Violetta Weger.
+\newblock {{CROSS} --- {Codes and Restricted Objects Signature Scheme}}.
+\newblock Technical report, {N}ational {I}nstitute of {S}tandards and
+  {T}echnology, 2024.
+\newblock available at
+  \url{https://csrc.nist.gov/Projects/pqc-dig-sig/round-2-additional-signatures}.
+
+\bibitem[BBB{\etalchar{+}}24b]{NISTPQC-ADD-R2:LESS24}
+Marco Baldi, Alessandro Barenghi, Luke Beckwith, {Jean-Fran\c{c}ois} Biasse,
+  Tung Chou, Andre Esser, Kris Gaj, Patrick Karl, Kamyar Mohajerani, Gerardo
+  Pelosi, Edoardo Persichetti, {Markku-Juhani}~O. Saarinen, Paolo Santini,
+  Robert Wallace, and Floyd Zweydinger.
+\newblock {{LESS} --- {Linear Equivalence Signature Scheme}}.
+\newblock Technical report, {N}ational {I}nstitute of {S}tandards and
+  {T}echnology, 2024.
+\newblock available at
+  \url{https://csrc.nist.gov/Projects/pqc-dig-sig/round-2-additional-signatures}.
+
+\bibitem[BCC{\etalchar{+}}24]{10.1007/978-3-031-54409-5_10}
+Ward Beullens, Fabio Campos, Sofía Celi, Basil Hess, and Matthias~J.
+  Kannwischer.
+\newblock {Nibbling {MAYO}: Optimized Implementations for {AVX2} and
+  {Cortex-M4}}.
+\newblock {\em IACR Transactions on Cryptographic Hardware and Embedded
+  Systems}, 2024(2):252–275, Mar. 2024.
+
+\bibitem[BCH{\etalchar{+}}23]{TCHES:BCHKPSY23}
+Ward Beullens, Ming-Shing Chen, Shih-Hao Hung, Matthias~J. Kannwischer, Bo-Yuan
+  Peng, Cheng-Jhih Shih, and Bo-Yin Yang.
+\newblock Oil and vinegar: Modern parameters and implementations.
+\newblock {\em {IACR} {TCHES}}, 2023(3):321--365, 2023.
+
+\bibitem[BFV13]{EC:BouFouVeb13}
+Charles Bouillaguet, Pierre-Alain Fouque, and Amandine V{\'e}ber.
+\newblock {Graph-Theoretic Algorithms for the ``Isomorphism of Polynomials''
+  Problem}.
+\newblock In Thomas Johansson and Phong~Q. Nguyen, editors, {\em
+  EUROCRYPT~2013}, volume 7881 of {\em {LNCS}}, pages 211--227. Springer,
+  Heidelberg, May 2013.
+
+\bibitem[BNG21]{DBLP:conf/fpt/BeckwithNG21}
+Luke Beckwith, Duc~Tri Nguyen, and Kris Gaj.
+\newblock {High-Performance Hardware Implementation of CRYSTALS-Dilithium}.
+\newblock In {\em International Conference on Field-Programmable Technology,
+  {(IC)FPT} 2021, Auckland, New Zealand, December 6-10, 2021}, pages 1--10.
+  {IEEE}, 2021.
+
+\bibitem[CCD{\etalchar{+}}22]{TCHES:CCDLNSW22}
+Po-Jen Chen, Tung Chou, Sanjay Deshpande, Norman Lahr, Ruben Niederhagen, Jakub
+  Szefer, and Wen Wang.
+\newblock {Complete and Improved {FPGA} Implementation of Classic {McEliece}}.
+\newblock {\em {IACR} {TCHES}}, 2022(3):71--113, 2022.
+
+\bibitem[CNP{\etalchar{+}}23a]{NISTPQC-ADD-R1:MEDS23}
+Tung Chou, Ruben Niederhagen, Edoardo Persichetti, Lars Ran, Tovohery~Hajatiana
+  Randrianarisoa, Krijn Reijnders, Simona Samardjiska, and Monika Trimoska.
+\newblock {MEDS} --- {Matrix Equivalence Digital Signature}.
+\newblock Technical report, {N}ational {I}nstitute of {S}tandards and
+  {T}echnology, 2023.
+\newblock available at
+  \url{https://csrc.nist.gov/Projects/pqc-dig-sig/round-1-additional-signatures}.
+
+\bibitem[CNP{\etalchar{+}}23b]{AFRICACRYPT:CNPRRST23}
+Tung Chou, Ruben Niederhagen, Edoardo Persichetti, Tovohery~Hajatiana
+  Randrianarisoa, Krijn Reijnders, Simona Samardjiska, and Monika Trimoska.
+\newblock {Take Your {MEDS}: Digital Signatures from Matrix Code Equivalence}.
+\newblock In Nadia {El Mrabet}, Luca {De Feo}, and Sylvain Duquesne, editors,
+  {\em AFRICACRYPT 23}, volume 14064 of {\em {LNCS}}, pages 28--52. Springer
+  Nature, July 2023.
+
+\bibitem[CNRS24]{DBLP:conf/pqcrypto/ChouNRS24}
+Tung Chou, Ruben Niederhagen, Lars Ran, and Simona Samardjiska.
+\newblock {Reducing Signature Size of Matrix-Code-Based Signature Schemes}.
+\newblock In Markku{-}Juhani~O. Saarinen and Daniel Smith{-}Tone, editors, {\em
+  Post-Quantum Cryptography - 15th International Workshop, PQCrypto 2024,
+  Oxford, UK, June 12-14, 2024, Proceedings, Part {I}}, volume 14771 of {\em
+  Lecture Notes in Computer Science}, pages 107--134. Springer, 2024.
+
+\bibitem[DHSY24]{DBLP:journals/tches/DeshpandeHSY24}
+Sanjay Deshpande, James Howe, Jakub Szefer, and Dongze Yue.
+\newblock {SDitH in Hardware}.
+\newblock {\em {IACR} Trans. Cryptogr. Hardw. Embed. Syst.}, 2024(2):215--251,
+  2024.
+
+\bibitem[DLK{\etalchar{+}}25]{10.1145/3728469}
+Sanjay Deshpande, Yongseok Lee, Cansu Karakuzu, Jakub Szefer, and Yunheung
+  Paek.
+\newblock {SPHINCSLET: An Area-Efficient Accelerator for the Full SPHINCS+
+  Digital Signature Algorithm}.
+\newblock {\em ACM Trans. Embed. Comput. Syst.}, April 2025.
+\newblock Just Accepted.
+
+\bibitem[dPRS23]{SP:dPRS23}
+Rafa{\"e}l {del Pino}, Thomas Prest, M{\'e}lissa Rossi, and Markku-Juhani~O.
+  Saarinen.
+\newblock {High-Order Masking of Lattice Signatures in Quasilinear Time}.
+\newblock In {\em 2023 {IEEE} Symposium on Security and Privacy}, pages
+  1168--1185. {IEEE} Computer Society Press, May 2023.
+
+\bibitem[FG18]{ferozpuri2018high}
+Ahmed Ferozpuri and Kris Gaj.
+\newblock {High-speed FPGA Implementation of the NIST Round 1 Rainbow Signature
+  Scheme}.
+\newblock In {\em 2018 International Conference on ReConFigurable Computing and
+  FPGAs (ReConFig)}, pages 1--8, 2018.
+
+\bibitem[FS87]{C:FiaSha86}
+Amos Fiat and Adi Shamir.
+\newblock {How to Prove Yourself: {Practical} Solutions to Identification and
+  Signature Problems}.
+\newblock In Andrew~M. Odlyzko, editor, {\em CRYPTO'86}, volume 263 of {\em
+  {LNCS}}, pages 186--194. Springer, Heidelberg, August 1987.
+
+\bibitem[GQT21]{DBLP:conf/stacs/GrochowQT21}
+Joshua~A. Grochow, Youming Qiao, and Gang Tang.
+\newblock {Average-Case Algorithms for Testing Isomorphism of Polynomials,
+  Algebras}, and multilinear forms.
+\newblock In Markus Bl{\"{a}}ser and Benjamin Monmege, editors, {\em 38th
+  International Symposium on Theoretical Aspects of Computer Science, {STACS}
+  2021, March 16-19, 2021, Saarbr{\"{u}}cken, Germany (Virtual Conference)},
+  volume 187 of {\em LIPIcs}, pages 38:1--38:17. Schloss Dagstuhl -
+  Leibniz-Zentrum f{\"{u}}r Informatik, 2021.
+
+\bibitem[HGG07]{DBLP:conf/arith/HasenplaughGG07}
+William Hasenplaugh, Gunnar Gaubatz, and Vinodh Gopal.
+\newblock {Fast Modular Reduction}.
+\newblock In {\em 18th {IEEE} Symposium on Computer Arithmetic {(ARITH-18}
+  2007), 25-27 June 2007, Montpellier, France}, pages 225--229. {IEEE} Computer
+  Society, 2007.
+
+\bibitem[HQR89]{DBLP:journals/tc/HochetQR89}
+Bertrand Hochet, Patrice Quinton, and Yves Robert.
+\newblock {Systolic Gaussian Elimination over GF(p) with Partial Pivoting}.
+\newblock {\em {IEEE} Trans. Computers}, 38(9):1321--1324, 1989.
+
+\bibitem[HSK{\etalchar{+}}23]{cryptoeprint:2023/1267}
+Florian Hirner, Michael Streibl, Florian Krieger, Ahmet~Can Mert, and
+  Sujoy~Sinha Roy.
+\newblock {Whipping the {MAYO} Signature Scheme using Hardware Platforms}.
+\newblock Cryptology ePrint Archive, Paper 2023/1267, 2023.
+\newblock \url{https://eprint.iacr.org/2023/1267}.
+
+\bibitem[KKPY24]{cryptoeprint:2024/112}
+Matthias~J. Kannwischer, Markus Krausz, Richard Petri, and Shang-Yi Yang.
+\newblock {pqm4: Benchmarking {NIST} Additional Post-Quantum Signature Schemes
+  on Microcontrollers}.
+\newblock Cryptology {ePrint} Archive, Paper 2024/112, 2024.
+
+\bibitem[LSG21]{DBLP:conf/cardis/LandSG21}
+Georg Land, Pascal Sasdrich, and Tim G{\"{u}}neysu.
+\newblock {A Hard Crystal - Implementing Dilithium on Reconfigurable Hardware}.
+\newblock In Vincent Grosso and Thomas P{\"{o}}ppelmann, editors, {\em Smart
+  Card Research and Advanced Applications - 20th International Conference,
+  {CARDIS} 2021, L{\"{u}}beck, Germany, November 11-12, 2021, Revised Selected
+  Papers}, volume 13173 of {\em Lecture Notes in Computer Science}, pages
+  210--230. Springer, 2021.
+
+\bibitem[MR24]{10483343}
+Suraj Mandal and Debapriya~Basu Roy.
+\newblock {KiD: A Hardware Design Framework Targeting Unified NTT
+  Multiplication for CRYSTALS-Kyber and CRYSTALS-Dilithium on FPGA}.
+\newblock In {\em 2024 37th International Conference on VLSI Design and 2024
+  23rd International Conference on Embedded Systems (VLSID)}, pages 455--460,
+  2024.
+
+\bibitem[NQT24]{DBLP:conf/eurocrypt/NarayananQT24}
+Anand~Kumar Narayanan, Youming Qiao, and Gang Tang.
+\newblock {Algorithms for Matrix Code and Alternating Trilinear Form
+  Equivalences via New Isomorphism Invariants}.
+\newblock In Marc Joye and Gregor Leander, editors, {\em Advances in Cryptology
+  - {EUROCRYPT} 2024 - 43rd Annual International Conference on the Theory and
+  Applications of Cryptographic Techniques, Zurich, Switzerland, May 26-30,
+  2024, Proceedings, Part {III}}, volume 14653 of {\em Lecture Notes in
+  Computer Science}, pages 160--187. Springer, 2024.
+
+\bibitem[Saa24]{DBLP:journals/iacr/Saarinen24}
+Markku{-}Juhani~O. Saarinen.
+\newblock {Accelerating {SLH-DSA} by Two Orders of Magnitude with a Single Hash
+  Unit}.
+\newblock {\em {IACR} Cryptol. ePrint Arch.}, page 367, 2024.
+\newblock To appear in CRYPTO 2024, August, 2024.
+
+\bibitem[SAW{\etalchar{+}}23]{DBLP:journals/iacr/SchmidAWZW23}
+Michael Schmid, Dorian Amiet, Jan Wendler, Paul Zbinden, and Tao Wei.
+\newblock {Falcon Takes Off - {A} Hardware Implementation of the Falcon
+  Signature Scheme}.
+\newblock {\em {IACR} Cryptol. ePrint Arch.}, page 1885, 2023.
+
+\bibitem[SMA{\etalchar{+}}24]{DBLP:conf/cosade/SayariMAKS24}
+Oussama Sayari, Soundes Marzougui, Thomas Aulbach, Juliane Kr{\"{a}}mer, and
+  Jean{-}Pierre Seifert.
+\newblock {HaMAYO: {A} Fault-Tolerant Reconfigurable Hardware Implementation of
+  the {MAYO} Signature Scheme}.
+\newblock In Romain Wacquez and Naofumi Homma, editors, {\em Constructive
+  Side-Channel Analysis and Secure Design - 15th International Workshop,
+  {COSADE} 2024, Gardanne, France, April 9-10, 2024, Proceedings}, volume 14595
+  of {\em Lecture Notes in Computer Science}, pages 240--259. Springer, 2024.
+
+\bibitem[SWM{\etalchar{+}}10]{DBLP:journals/tc/ShoufanWMHK10}
+Abdulhadi Shoufan, Thorsten Wink, H.~Gregor Molter, Sorin~A. Huss, and Eike
+  Kohnert.
+\newblock {A Novel Cryptoprocessor Architecture for the McEliece Public-Key
+  Cryptosystem}.
+\newblock {\em {IEEE} Trans. Computers}, 59(11):1533--1546, 2010.
+
+\bibitem[TDJ{\etalchar{+}}22]{EC:TDJPQS22}
+Gang Tang, Dung~Hoang Duong, Antoine Joux, Thomas Plantard, Youming Qiao, and
+  Willy Susilo.
+\newblock Practical post-quantum signature schemes from isomorphism problems of
+  trilinear forms.
+\newblock In Orr Dunkelman and Stefan Dziembowski, editors, {\em
+  EUROCRYPT~2022, Part~III}, volume 13277 of {\em {LNCS}}, pages 582--612.
+  Springer, Heidelberg, May~/~June 2022.
+
+\bibitem[TYD{\etalchar{+}}11]{tang2011high}
+Shaohua Tang, Haibo Yi, Jintai Ding, Huan Chen, and Guomin Chen.
+\newblock {High-Speed Hardware Implementation of Rainbow Signature on FPGAs}.
+\newblock In Bo-Yin Yang, editor, {\em Post-Quantum Cryptography}, pages
+  228--243, Berlin, Heidelberg, 2011. Springer Berlin Heidelberg.
+
+\bibitem[WJW{\etalchar{+}}19]{SAC:WJWDGSN19}
+Wen Wang, Bernhard Jungk, Julian W{\"a}lde, Shuwen Deng, Naina Gupta, Jakub
+  Szefer, and Ruben Niederhagen.
+\newblock {{XMSS} and Embedded Systems}.
+\newblock In Kenneth~G. Paterson and Douglas Stebila, editors, {\em SAC 2019},
+  volume 11959 of {\em {LNCS}}, pages 523--550. Springer, Heidelberg, August
+  2019.
+
+\bibitem[WSN16]{DBLP:conf/reconfig/WangSN16}
+Wen Wang, Jakub Szefer, and Ruben Niederhagen.
+\newblock {Solving large systems of linear equations over {GF(2)} on FPGAs}.
+\newblock In Peter~M. Athanas, Ren{\'{e}} Cumplido, Claudia Feregrino, and Ron
+  Sass, editors, {\em International Conference on ReConFigurable Computing and
+  FPGAs, ReConFig 2016, Cancun, Mexico, November 30 - Dec. 2, 2016}, pages
+  1--7. {IEEE}, 2016.
+
+\bibitem[WSN17]{CHES:WanSzeNie17}
+Wen Wang, Jakub Szefer, and Ruben Niederhagen.
+\newblock {{FPGA}-based Key Generator for the Niederreiter Cryptosystem Using
+  Binary Goppa Codes}.
+\newblock In Wieland Fischer and Naofumi Homma, editors, {\em CHES~2017},
+  volume 10529 of {\em {LNCS}}, pages 253--274. Springer, Heidelberg, September
+  2017.
+
+\bibitem[ZZC{\etalchar{+}}23]{DBLP:conf/dac/ZhuZCZLWL23}
+Yihong Zhu, Wenping Zhu, Chen Chen, Min Zhu, Zhengdong Li, Shaojun Wei, and
+  Leibo Liu.
+\newblock {Mckeycutter: {A} High-throughput Key Generator of Classic McEliece
+  on Hardware}.
+\newblock In {\em 60th {ACM/IEEE} Design Automation Conference, {DAC} 2023, San
+  Francisco, CA, USA, July 9-13, 2023}, pages 1--6. {IEEE}, 2023.
+
+\bibitem[ZZL{\etalchar{+}}23]{zhu2023repqc}
+Yihong Zhu, Wenping Zhu, Chongyang Li, Min Zhu, Chenchen Deng, Chen Chen,
+  Shuying Yin, Shouyi Yin, Shaojun Wei, and Leibo Liu.
+\newblock {RePQC: A 3.4-uJ/Op 48-kOPS Post-Quantum Crypto-Processor for
+  Multiple-Mathematical Problems}.
+\newblock {\em IEEE Journal of Solid-State Circuits}, 58(1):124--140, 2023.
+
+\end{thebibliography}
+
+
+\newpage
+\appendix
+
+\section*{Appendix}
+\label{sec::appendix_algorithms}
+
+
+\begin{algorithm}[H]
+  \caption{MEDS sign (from \cite{NISTPQC-ADD-R1:MEDS23})}%\scname{}.\DEFSign(): signing}
+  \label{alg:sign}
+  %
+  \BlankLine
+  %
+  \KwIn{secret key $\sk \in \B^{\ell_\sk}$,
+        message $\mesg{} \in \B^{\ell_\mesg{}}$}
+  \KwOut{signed message $\signedmessage{} \in \B^{\ell_\sig + \ell_{\mesg}}$}
+  %
+  \BlankLine
+  $f_\sk \gets \lprivseed$\; \nllabel{alg::sign::start_init}
+  \BlankLine
+  $\sigma_{\mat{G}_0} \gets \sk[f_\sk, f_\sk + \lpubseed - 1]$\;
+  $f_\sk \gets f_\sk + \lpubseed$\;
+  \BlankLine
+  $\mat{G}_0 \in \Fq{k \times mn} \gets \ExpandSystMat(\sigma_{\mat{G}_0})$\;
+  \BlankLine
+  \ForAll{$i \in \{1, \dots, s-1\}$}
+  {
+    $\mat{A}^{-1}_i \in \typeA \gets \decompress(\sk[f_\sk, f_\sk + \lmu], m, m)$\;
+    $f_\sk \gets f_\sk + \lmu$\;
+  }
+  \BlankLine
+  \ForAll{$i \in \{1, \dots, s-1\}$}
+  {
+    $\mat{B}^{-1}_i \in \typeB \gets \decompress(\sk[f_\sk, f_\sk + \lnu], n, n)$\;
+    $f_\sk \gets f_\sk + \lnu$\; \nllabel{alg::sign::end_init}
+  }
+  \BlankLine
+  %$\mat{G}_0 \in \typeG \gets (\mat{I}_k | \decompress(\sk[f_\sk,], k, mn-k) )$\;
+  %$\mat{A}^{-1}_1, \dots \mat{A}^{-1}_{s-1} \in \typeA,
+  %  \mat{B}^{-1}_1, \dots \mat{B}^{-1}_{s-1} \in \typeB,
+  %  \mat{G}_0 \in \typeGcomp \gets \decompress(\sk[32,])$\;
+  % \BlankLine
+  % $\mat{G}_0 \in \typeG \gets (\mat{I}_k | \mat{G}_0)$\;
+  \BlankLine
+  %
+  $\delta \in \B^{\lprivseed} \gets \randombytes(\lprivseed)$\; \nllabel{alg::sign::delta}
+  %
+  %$\sigma_0, \dots, \sigma_{t-1} \in \B^\lseed \gets \XOF(\delta, \lseed \times t)$\;
+  $\rho \in \B^\lseed, \alpha \in \B^{\lsalt} \gets \XOF(\delta, \lseed, \lsalt)$\; \nllabel{alg::sign::root_salt}
+  $\sigma_0, \dots, \sigma_{t-1} \in \B^\lseed \gets \SeedTree_t(\rho, \alpha)$\; \nllabel{alg::sign::seed_tree}
+  %
+  \BlankLine
+  %
+  \ForAll{$i \in \{0, \dots, t-1\}$ \nllabel{alg::sign::comm_start} }
+  {
+     %$\sigma'_i \in \B^\lseed \gets \sigma_i$\;
+     \BlankLine
+     $\sigma_i' \in \B^{\lsalt + \lseed + 4} \gets \left(\alpha | \sigma_i | \ToBytes(2^{1+\lceil\log_2(t)\rceil} + i, 4)\right)$\nllabel{alg::sign::startTildeABG}\;
+     %$\sigma_{\mat{\tilde{A}}_i}, \sigma_{\mat{\tilde{B}}_i} \in \B^{32}; \sigma'_i \in \B^\lseed \gets 
+     %       \XOF(\sigma_i, 32, 32, \lseed)$\nllabel{startTildeABG}\;
+     $\sigma_{\mat{\tilde{A}}_i}, \sigma_{\mat{\tilde{B}}_i} \in \B^\lpubseed, \sigma_i \in \B^\lseed \gets 
+            \XOF(\sigma_i', \lpubseed, \lpubseed, \lseed)$\; \nllabel{alg::sign::seed_xof}
+     \BlankLine
+     %
+     $\mat{\tilde{A}}_i \in \GLmq
+           \gets \ExpandInvMat(\sigma_{\mat{\tilde{A}}_i}, m)$\;
+     $\mat{\tilde{B}}_i \in \GLnq
+           \gets \ExpandInvMat(\sigma_{\mat{\tilde{B}}_i}, n)$\; \nllabel{alg::sign::gen_AB_end}
+     \BlankLine
+       $\mat{\tilde{G}}_i \in \typeG \gets
+            \medspi{\mat{\tilde{A}}_i}{\mat{\tilde{B}}_i}{\mat{G}_0}$\; \nllabel{alg::sign::pi}
+       $\mat{\tilde{G}}_i \in \typeG \cup \{\bot\} \gets \SF(\mat{\tilde{G}}_i)$\; \nllabel{alg::sign::SF}
+     \BlankLine
+     \If{$\mat{\tilde{G}}_i = \bot$\nllabel{alg::sign::is_syst}}
+     {
+      % $\sigma_i \in \B^\lseed \gets \sigma'_i$\;
+       \KwGoto line \ref{alg::sign::startTildeABG}\;
+     }
+  } \nllabel{alg::sign::comm_end}
+  \BlankLine
+  %
+  $d \in \B^\ldigest \gets \Hash(
+     \compress(\mat{\tilde{G}}_0[;k,mn-1]) \,|\, \dots \,|\,
+     \compress(\mat{\tilde{G}}_{t-1}[;k,mn-1])
+     \, | \, \mesg)$\; \nllabel{alg::sign::comm_hash}
+  $h_0, \dots, h_{t-1} \in \{0, \dots, s-1\} \gets \ParseHash(d)$\; \nllabel{alg::sign::parse_hash}
+  \BlankLine
+  %
+  $f_v \gets 0$\;
+  \BlankLine
+  \ForAll{$i \in \{0, \dots, t-1\}$ \nllabel{alg::sign::mu_nu_start}}
+  {
+     \If{$h_i > 0$}
+     {
+       $\mu_i \in \typeA \gets \mat{\tilde{A}}_i \cdot \mat{A}^{-1}_{h_i}$\;
+       $\nu_i \in \typeB \gets \mat{B}^{-1}_{h_i} \cdot \mat{\tilde{B}}_i$\;
+       $v_{f_v} \in \B^{\lmu + \lnu}  \gets (\compress(\mu_i) \,|\, \compress(\nu_i))$\;
+       $f_v \gets f_v + 1$\;
+     }
+     %{
+     %  $\signedmessage{}_{,i} \in \B^\lseed \gets \sigma_i$\;
+     %  %$\signedmessage{}_{,i} \in \B^\lseed \gets \bot$\;
+     %}
+     \nllabel{alg::sign::mu_nu_end}
+  }
+  \BlankLine
+  %
+  $p \in \B^{\ell_\spath} \gets \SeedTreeToPath_t(h_0, \dots, h_{t-1}, \rho, \alpha)$\; \nllabel{alg::sign::st2path}
+  \BlankLine
+  \Return $\signedmessage \in \B^{w(\lmu + \lnu) + \ell_\spath + \ldigest + \lsalt + \ell_\mesg{} = \ell_\sig + \ell_\mesg{}} = (
+  %        \signedmessage{}_{,0} \,|\, \dots \,|\, \signedmessage{}_{,t-1} \,|\, d \,|\, m)$\;
+          v_0 \,|\, \dots \,|\, v_{w-1} \,|\, p \,|\, d \,|\, \alpha \,|\, \mesg{})$\;
+\end{algorithm}
+
+
+
+\begin{algorithm}[p]
+  \caption{MEDS verify (adapted from \cite{NISTPQC-ADD-R1:MEDS23})}%\scname{}.\DEFSign(): signing}
+  \label{alg:verify}
+  %
+  \BlankLine
+  %
+  \KwIn{public key $\pk \in \B^{\ell_\pk}$,
+        signed message $\signedmessage{} \in \B^{\ell_\sig + \ell_m}$}
+  \KwOut{message $\mesg{} \in \B^\ell_m$ or $\bot$}
+  \BlankLine
+  %
+  $\sigma_{\mat{G}_0} \gets \pk[0,\lpubseed-1]$\; \nllabel{alg::verify::start_init}
+  $\mat{G}_0 \in \Fq{k \times mn} \gets \ExpandSystMat(\sigma_{\mat{G}_0})$\; \nllabel{alg::verify::init_G0}
+  \BlankLine
+  %
+  %$\mat{\check{G}}_{1}, \dots, \mat{\check{G}}_{s-1} \gets \decompress(\pk[32,])$\;
+  $f_\pk \gets \lpubseed$\;
+  \BlankLine
+  \ForAll{$i \in \{1, \dots, s-1\}$}
+  {
+    $\mat{G}_i \in \typeG \gets \decompressG(\pk[f_\pk,f_\pk + \ell_{G_i}])$\;
+    $f_\pk \gets f_\pk + \ell_{G_i} $\; \nllabel{alg::verify::end_init}
+    %$\mat{G}_i \in \typeG \gets (\mat{I}_k | \mat{\check{G}}_i)$\;
+  }
+  \BlankLine
+  %
+  $p \in \B^{\lpath}
+     \gets
+\signedmessage[\lsig-\ldigest-\lsalt-\lpath,\lsig-\ldigest-\lsalt-1]$\; \nllabel{alg::verify::start_parse_sig}
+  $d \in \B^{\ldigest}, \alpha \in \B^{\lsalt}, \mesg \in \B^* \gets
+           \signedmessage[\lsig-\ldigest-\lsalt,\lsig-\lsalt-1],
+           \signedmessage[\lsig-\lsalt,\lsig-1],
+           \signedmessage[\lsig,]$\; \nllabel{alg::verify::end_parse_sig}
+  \BlankLine
+  %
+  $h_0, \dots, h_{t-1} \in \{0, \dots, s-1\} \gets \ParseHash(d)$\; \nllabel{alg::verify::parse_hash}
+  \BlankLine
+  $\sigma_0, \dots, \sigma_{t-1} \in \B^\lseed \gets \PathToSeedTree_t(h_0, \dots, h_{t-1}, p, \alpha)$\;
+     \nllabel{alg:verify:path2st}
+  \BlankLine
+  %
+  $f_{m_s} \gets 0$\;
+  \BlankLine
+  %
+  \ForAll{$i \in \{0, \dots, t-1\}$ \nllabel{alg::verify::comm_start}}
+  {
+     \eIf{$h_i > 0$}
+     {
+       $\mu_i \in \typeA \gets \decompress(\signedmessage[f_{m_s},f_{m_s} + \lmu - 1], m, m)$\; \nllabel{alg::verify::mucopy}
+       $\nu_i \in \typeB \gets \decompress(\signedmessage[f_{m_s} \! + \lmu,f_{m_s} \! \! + \lmu + \lnu - 1], n, n)$\; \nllabel{alg::verify::nucopy}
+       $f_{m_s} \gets f_{m_s} + \lmu + \lnu$\;
+       \BlankLine
+       \If{$\mu_i \notin \typeAinv$ \KwOr $\nu_i \notin \typeBinv$}
+       {
+         \Return $\bot$\; \nllabel{alg::verify::munuexit}
+       }
+     }
+     {
+       % $\sigma_i \in \B^\lseed \gets \hat{\signedmessage}[f_{\hat{m}_s},f_{\hat{m}_s}+\lseed]$\;
+       % $f_{\hat{m}_s} \gets f_{\hat{m}_s} + \lseed$\;
+       % \BlankLine
+       $\sigma_i' \in \B^{\lsalt + \lseed + 4} \gets \left(\alpha | \sigma_i | \nllabel{alg::verify::munustart} \ToBytes(2^{1+\lceil\log_2(t)\rceil} + i, 4)\right)$\;
+       $\sigma_{\mat{\hat{A}}_i}, \sigma_{\mat{\hat{B}}_i} \in \B^\lpubseed, \sigma_i \in \B^\lseed \gets 
+              \XOF(\sigma_i', \lpubseed, \lpubseed, \lseed)$\nllabel{startTildeABGver}\; \nllabel{alg::verify::seed_xof}
+       \BlankLine
+       %
+       $\mu_i \in \typeAinv
+             \gets \ExpandInvMat(\sigma_{\mat{\hat{A}}_i}, m)$\; 
+       $\nu_i \in \typeBinv
+             \gets \ExpandInvMat(\sigma_{\mat{\hat{B}}_i}, n)$\; \nllabel{alg::verify::munuend}
+%       \BlankLine
+%         $\mat{\hat{G}}_i \in \typeG \gets
+%              \medspi{\mat{\hat{A}}_i}{\mat{\hat{B}}_i}{\mat{G}_0}$\;
+%         $\mat{\hat{G}}_i \in \typeG \cup \{\bot\} \gets \SF(\mat{\hat{G}}_i)$\;
+%       \BlankLine
+%       \If{$\mat{\hat{G}}_i = \bot$}
+%       {
+%%         \Return $\bot$\;
+%         %$\sigma_i \in \B^\lseed \gets \sigma'_i$\;
+%         \KwGoto line \ref{startTildeABGver}\;
+%       }
+     }
+     \BlankLine
+     $\mat{\hat{G}}_i \in \typeG \gets
+          \medspi{\mu_i}{\nu_i}{\mat{G}_{h_i}}$\; \nllabel{alg::verify::pi}
+     $\mat{\hat{G}}_i \in \typeG \cup \{\bot\} \gets \SF(\mat{\hat{G}}_i)$\; \nllabel{alg::verify::SF}
+     \BlankLine
+     \If{$\mat{\hat{G}}_i = \bot$}
+     {
+       \Return $\bot$\;
+     }
+  } \nllabel{alg::verify::comm_end}
+  \BlankLine
+  %
+  $d' \in \B^{\ldigest} \gets \Hash(
+     \compress(\mat{\hat{G}}_0[;k,mn-1]) \,|\, \dots \,|\,
+     \compress(\mat{\hat{G}}_{t-1}[;k,mn-1])
+     \, | \, \mesg)$\; \nllabel{alg::verify::comm_hash}
+  \BlankLine
+  \eIf{$d = d'$}
+  {
+     \Return $\mesg$\; \nllabel{alg::verify::success}
+  }
+  {
+     \Return $\bot$\; \nllabel{alg::verify::fail}
+  }
+\end{algorithm}
+
+
+
+
+\end{document}
+
