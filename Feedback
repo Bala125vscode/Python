@@ -9,3 +9,10 @@ Original:
 Where \(  n(t)\) has the dimension of neutron density (\unit{n/cm^3}) and  $g(\bm{r})$  has the dimension of a motion  (\unit{cm/s}).
 Converted:
 Where \(  n(t)\) has the dimension of neutron density ($n/cm^3$) and  $g(\bm{r})$  has the dimension of a motion  ($cm/s$).
+
+
+\Mathrm is missing and also changed 
+Original:
+\SI{100}{MS\per\milli\second}
+Converted
+$100\,MS\mathrm{ms}^{-1}$
