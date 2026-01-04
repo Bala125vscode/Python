@@ -27,4 +27,9 @@ $0 \text{--} 5\,\mathrm{V}$
 Correct code is
 $0 \mathrm{to} 5\,\mathrm{V}$
 
+Instead of superscript minus 1 slash should be used since in preamble it was mentioned as \usepackage[detect-all,per-mode=symbol]
+original  
+\si{\kelvin\per\watt}
+converted
+$\mathrm{KW}^{-1}$
 
