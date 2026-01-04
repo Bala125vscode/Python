@@ -1,3 +1,5 @@
+\usepackage[detect-all,per-mode=symbol]{siunitx}
+
 Tool added additional $ when it is already provided as a inline equation
 Original:
 $\num{5408} - \num{4025.56} =  \qty{1382.44}{\kilo\electronvolt}$. 
@@ -11,8 +13,18 @@ Converted:
 Where \(  n(t)\) has the dimension of neutron density ($n/cm^3$) and  $g(\bm{r})$  has the dimension of a motion  ($cm/s$).
 
 
-\Mathrm is missing and also changed 
+\Mathrm is missing for "MS" and also changed 
 Original:
 \SI{100}{MS\per\milli\second}
 Converted
 $100\,MS\mathrm{ms}^{-1}$
+
+
+original 
+{\SIrange{0}{5}{\volt}}
+converted 
+$0 \text{--} 5\,\mathrm{V}$
+Correct code is
+$0 \mathrm{to} 5\,\mathrm{V}$
+
+
