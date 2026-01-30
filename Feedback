@@ -33,3 +33,15 @@ original
 converted
 $\mathrm{KW}^{-1}$
 
+
+Kindly find the below feedbacks in running the SI units tool
+
+1. \qtyrange{10}{30}{\MeV} changed to 10 \text{--} 30\,\mathrm{MeV} (correct output 10 to 30 MeV)
+
+2. \unit{\elementarycharge\squared} changed to ^{2} (correct output e^{2})
+
+other feedbacks
+
+\to coding unwanted change to \mathrm{to} actual rightarrow symbol
+\C coding unwanted change to \mathrm{C} has to be retained as it is.
+
