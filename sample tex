@@ -1,0 +1,999 @@
+\documentclass[graybox,online,contentonly,fleqn]{K:/sps-soft/Formats/Springer_Books/Template/svmult}
+\grid{on}
+
+  english,
+  ruledheaders=chapter, % Section levels above this one will follow the ruled layout, see DEMO-TUDaPub
+  class=book,
+  % thesis={
+  %   type=drfinal,
+  %   dr=rernat
+  % },
+  department=phys,
+  accentcolor=9c,
+  % custommargins=true, % If true calculate margins using typearea (which is the default behaviour of KOMA-Script), if false (default) use the TUDa Corporate Design Guideline values. Since the automatic margines from typearea are rather large for A5 paper, it is better to use the TUDa Corporate Design Guideline values.
+  marginpar=false, % If false don't include a column on every page for margin notes (\marginpar{Note text...})
+  % BCOR=5mm, % Binding correction. Apparently not necessary.
+  parskip=half-, % If active use a parskip (vertical space) instead of an (horizontal) indent on new paragraphs (the default behaviour), see KOMA-Script documentation
+  fontsize=10pt,
+  paper=a5,
+  listof=totoc, % Put the list of figures and tables in the table of contents
+  pdfx=false, % pdfx seems to be deprecated anyway tudapub output: "I detected usage of l3pdfmeta (\DocumentMetadata ) to create PDF/A. tudapub will not load pdfx to avoid conflicts. To disable this message use pdfx=false."
+  twoside=true, % Usually activated by the thesis=dr option
+  ruledheaders=chapter, % Usually activated by the thesis=dr option
+  accept-missing-logos=true, % Allow compilation without the TUDa logo
+]{tudapub}
+
+
+% ######################################## Packages ########################################
+\usepackage[ngerman, main=english]{babel}
+\usepackage[autostyle]{csquotes}
+\usepackage{microtype}
+\usepackage{caption}
+\usepackage[
+  forbid-literal-units=true, % Forbid the use of literal units (e.g. 10 m/s) and require the use of \qty{10}{\meter\per\second} instead, better for consistency
+  display-per-mode=fraction, % Configure how to print inverse units in display math, one of power (default), power-positive-first, fraction, symbol, single-symbol
+  inline-per-mode=symbol, % Configure how to print inverse units in inline math, one of power (default), power-positive-first, fraction, symbol, single-symbol
+  input-uncertainty-divider=-, % Use - instead of : for the assymetric uncertainty divider. Since the negative uncertainty follows the positive one (and the actual values cannot be negative), it is more intuitive to put a - infront of the negative part instead of a : to separate the two
+  input-ignore=+, % Ignore any + signs in siunitx input (which should never be necessary), together with the previous option this allows to write 2.3(+0.1-0.2) instead of 2.3(0.1:0.2) for asymmetric uncertainties, which is more intuitive to read/write
+  exponent-product = \cdot, % Use a centered dot instead of a cross for the multiplication with the exponent in exponential notation
+  range-units=single, % Don't repeat the unit for ranges (e.g. 1 to 2 m instead of 1 m to 2 m)
+  list-units=single, % Don't repeat the unit for lists (e.g. 1 m, 2 m and 3 m) (default is to repeat)
+  table-alignment-mode=format, % Use the table-format option for S columns in tables
+  list-final-separator = {, and }, % Use a comma and an "and" before the last item in a list
+]{siunitx}
+% Useful SI unit options (see section 4 "Package control options" in the manual (http://mirrors.ctan.org/macros/latex/contrib/siunitx/siunitx.pdf) for more details):
+% parse-numbers=false: Turn number parser off, useful for arbitrary tex code like \qty[parse-numbers = false]{\sqrt{3}}{\metre}
+% evaluate-expression: Allows to evaluate expressions in the number parser, e.g. \qty{2 + 4 * 3}{\joule} or even \qty[expression = 0.001 * (#1)]{2 + 4 * 3}{\mega\joule}
+% exponent-mode: Controls how exponents are printed, choice of input (default), fixed, engineering, scientific and threshold, see siunitx documentation for details
+% drop-exponent: Drop the exponent, can for example be useful in tables where the exponent is given in the column header
+% round-mode: siunitx can round numbers with many options, see the documentation for details
+% uncertainty-descriptors & uncertainty-descriptor-mode: siunitx can handle multiple uncertainties (e.g. for sys and stat) and these options allow to put descriptors next to them
+% tight-spacing=true: Reduce the output spacing
+% print-implicit-plus, print-mantissa-implicit-plus, print-exponent-implicit-plus: Print a + sign in front of positive numbers, useful with the input-ignore option to get a plus sign
+% table-alignment-mode=format, table-number-alignment=left/center/right, table-format={TEXTPREFIX}+1.4(2)e1{TEXTPOSTFIX} : Alignment and space reservation for S[OPTIONSGOHERE] columns in tables. This will always align the numbers at the decimal point, and the overall aligned number column then according to the table-number-alignment option (e.g., when the header is much longer than the numbers), put everything that is not a number (e.g. headers) into {} braces. It's necessary to explicitly state how long the individual parts of all table entries are using table-format, if there is extra content taking up space in table entries it also needs to be explicitly stated using the {TEXTPREFIX} and {TEXTPOSTFIX} parts. See the siunitx documentation for more details.
+% table-align-text-before=false, table-align-text-after=false: Do not align extra content in table entries, useful to put footnotes etc directly next to the numbers
+
+
+% ---------------------------------------- Math related: Unicode math and font ----------------------------------------
+% Overwrites the `setkomafont` calls done by tudapub, which would set Roboto as the caption font. However, Roboto does not provide a good math font and using the main font (just smaller for distinction, APS Journals do the same) for captions as well is more consistent, anyway.
+\setkomafont{captionlabel}{\small}
+\setkomafont{caption}{\small}
+
+\usepackage{mathtools} % loads and extends amsmath
+% \usepackage{amssymb} % provides extra symbols % Not necessary because XCharter already provides them
+\usepackage[bold-style=ISO, math-style=ISO, warnings-off={mathtools-colon,mathtools-overbracket}]{unicode-math}
+\addtokomafont{sectioning}{\boldmath} % Bold math in section titles
+% Workaround for footnotes with tabularray, see https://tex.stackexchange.com/a/697258, has to be loaded after siunitx and before XCharter
+\makeatletter
+\disable@package@load{realscripts}{}
+\makeatother
+\usepackage[otfmath]{XCharter} % See https://tex.stackexchange.com/questions/425098/which-opentype-math-fonts-are-available for a list of available math fonts
+% \setmathfont{Latin Modern Math} % See https://tex.stackexchange.com/questions/425098/which-opentype-math-fonts-are-available for a list of available math fonts
+% \setmathfont{STIX Two Math} % See https://tex.stackexchange.com/questions/425098/which-opentype-math-fonts-are-available for a list of available math fonts
+
+% Sans serif math in Roboto (used for chapter and section titles)
+% Use \texorpdfstring{$\symbfsf{MATH-CODE}$}{(UNICODE EQUIVALENT)} in chapter and section titles to use the same font (bold Roboto) as for the text chapter and section title parts
+% For me only relevant for the $2^+_1$ in titles
+% \setmathfont[range=up]{Fira Math-Regular}
+\setmathfont[range=sfup]{Roboto-Regular}
+\setmathfont[range=sfit]{Roboto-Italic}
+\setmathfont[range=bfsfup]{Roboto-Bold}
+% \setmathfont[range=\int]{Fira Math-Regular}
+
+
+% ---------------------------------------- Bibliography ----------------------------------------
+\usepackage[%
+    backend=biber, % biber is the default anyway, but why not be explicit...
+    style=phys, % Style for bibliography (.bbx) and citations (.cbx). `numeric-comp` (an included biblatex style) uses numbers with compressed ranges (e.g., 1-3), `alphabetic` (an included biblatex style) uses author-year labels (e.g., Kle24), `phys` (from `biblatex-phys' package) is similiar to `numeric-comp`, but significantly modifies the formatting of the bibliography to emulate AIP or APS style (e.g. abbreviates first names, prints journal name non-italic and without "In:", prints journal volume bold, no "p." or "pp." for page numbers, etc.).
+    biblabel=brackets, % biblatex-phys option on how to format the numerical labels of bibliography entries, `superscript` or `brackets`.
+    articletitle=false, % biblatex-phys option to control whether article titles are printed in the bibliography, APS style does not print them.
+    chaptertitle=false, % biblatex-phys option to control whether chapter titles for `incollection' entries are printed in the bibliography, APS style does not print them.
+    pageranges=false, % biblatex-phys option to control whether page ranges are printed in the bibliography, APS style does not print them.
+    sorting=none, % None means sort by order of appearance, another option is, e.g., ndvt for sort by name, full date, volume, title.
+    maxnames=3, % Maximum number of names to display before truncating with "et al." everywhere (manually overwritten in the publication list in the academic CV, where I want to highlight my name)
+    % maxcitenames=3, % Maximum number of names to display before truncating with "et al.", but only affecting citations in the document body (relevant for \textcite)
+    doi=true, % Whether to print DOIs in the bibliography
+    eprint=true, % Whether to print eprint (arXiv) information in the bibliography
+    isbn=true, % Whether to print ISBNs/ISSNs/ISRNs in the bibliography. Unfortunately, there is no option to print only ISBNs and not ISSNs.
+    url=true, % Whether to print URLs in the bibliography
+    giveninits=true, % Abbreviate first names to initials
+    alldates=iso, % Print all dates in the iso format YYYY-MM-DD
+    seconds=true, % Print seconds in the time part of the date, required by `alldates=iso`
+    % refsegment=chapter, % Automatically start a new reference segment at the beginning of each chapter for chapter-wise bibliographies as requested by Springer Theses. Use of refsegment instead of refsection does not reset the numbering of the references, which allows for continuous numbering of references in the whole document and a single bibliography at the end in addition to the chapter-wise bibliographies. However, automatically starting new refsegments causes issues with the refsection used in the academic CV, so it is not used here after all.
+    defernumbers=true, % Required by labelprefix option used by the publication list in the academic CV. "An important thing to note is that if you are using this option, then changes to options, the bib file or certain commands like \printbibliography will usually require that you delete your current aux file and re-run LaTeX to obtain the correct numbering."
+]{biblatex}
+
+\addbibresource{Literature.bib}
+
+% Smaller font size for bibliography. Makes sense, since otherwise a lot of ugly line breaks can happen
+\renewcommand*{\bibfont}{\normalfont\small}
+
+% Don't print urls with a weird font, does technically affect everything, not just the bibliography, but mostly visible there
+\urlstyle{same}
+
+% Use "et al." in italic instead of the default "and others"
+\DefineBibliographyStrings{english}{
+    andothers = {\textit{et\addabbrvspace al\adddot}},
+}
+
+% Never print ISSNs and months
+\AtEveryBibitem{\clearfield{issn}}
+\AtEveryBibitem{\clearfield{month}}
+
+\newtoggle{bbx:allnames} % To print all names in the publication list in the academic CV, but not in the normal bibliography, from https://tex.stackexchange.com/a/353486
+\togglefalse{bbx:allnames}
+\AtEveryBibitem{\iftoggle{bbx:allnames}{\defcounter{maxnames}{999}}{}}
+
+% Use title case for titles, necessary for books, software, etc. which still use titles
+\DeclareFieldFormat{titlecase}{#1}
+
+% \newline is not the nicest solution, since it always starts a new line, even if there would be enough space on the current line. However I don't know how to suggest a line break which would also disable justification of the whole text.
+% Print DOI in bibliography with "DOI:" prefix similar to the "ISBN:" prefix (Rollback the change to the DOI format done by biblatex-phys, taken from biblatex.def). Also start the DOI on a new line, since it is often too long and breaks in an ugly way
+\DeclareFieldFormat{doi}{%
+  \printtext{\newline}\mkbibacro{DOI}\addcolon\space
+  \ifhyperref
+    {\href{https://doi.org/#1}{\nolinkurl{#1}}}
+    {\nolinkurl{#1}}%
+}
+% Print URL in bibliography with "URL:" prefix similar to the "ISBN:" prefix (Rollback the change to the URL format done by biblatex-phys, taken from biblatex.def). Also start the URL on a new line, since it is often too long and breaks in an ugly way
+\DeclareFieldFormat{url}{\printtext{\newline}\mkbibacro{URL}\addcolon\space\url{#1}}
+
+% Print all titles in italics and without quotation marks (use `mkbibemph` instead of `mkbibquote`) and also link title to DOI, where the phys style does not link it otherwise (remember, article, etc. titles are not printed, but book, software, etc. titles are)
+\newbibmacro{string+doi}[1]{\iffieldundef{doi}{#1}{\href{https://doi.org/\thefield{doi}}{#1}}}
+\DeclareFieldFormat{title}{\usebibmacro{string+doi}{\mkbibemph{#1}}} % Generic title format for all types
+\DeclareFieldFormat[inbook,incollection,thesis,unpublished]{title}{\usebibmacro{string+doi}{\mkbibemph{#1}}} %{\mkbibquote{#1\isdot}} % Title format for books, collections, theses, etc. Taken from biblatex.def and modified to use `mkbibemph` and `string+doi`
+\DeclareFieldFormat[article,inproceedings,patent]{title}{% % Title format for articles, proceedings, patents, etc. Taken from phys.bbx and does not really matter since article titles are not printed anyway
+\iftoggle{bbx:articletitle}
+{\mkbibquote{\usebibmacro{string+doi}{#1}\isdot}}
+{}%
+}
+
+% Article driver for biblatex-phys modified to print a separator (comma) after the year and before the "DOI:"/"URL:"... prefix
+\DeclareBibliographyDriver{article}{%
+  \usebibmacro{bibindex}%
+  \usebibmacro{begentry}%
+  \usebibmacro{author/translator+others}%
+  \setunit{\labelnamepunct}\newblock
+  \usebibmacro{title}%
+  \newunit
+  \printlist{language}%
+  \newunit\newblock
+  \usebibmacro{byauthor}%
+  \newunit\newblock
+  \usebibmacro{bytranslator+others}%
+  \newunit\newblock
+  \printfield{version}%
+  \newunit\newblock
+  \printtext[doi/url-link]{%
+    \usebibmacro{journal+issuetitle}%
+    \newunit
+    \usebibmacro{byeditor+others}%
+    \newunit
+    \usebibmacro{note+pages}%
+    \newunit\newblock
+    \iftoggle{bbx:isbn}
+      {\printfield{issn}}
+      {}%
+    \setunit{\addspace}%
+    \printfield{year}%
+  }%
+  % \setunit{\addspace}% % THIS WAS REMOVED HERE
+  \newunit\newblock % THIS WAS ADDED HERE
+  \usebibmacro{doi+eprint+url}%
+  \newunit\newblock
+  \usebibmacro{addendum+pubstate}%
+  \setunit{\bibpagerefpunct}\newblock
+  \usebibmacro{pageref}%
+  \newunit\newblock
+  \iftoggle{bbx:related}
+    {\usebibmacro{related:init}%
+     \usebibmacro{related}}
+    {}%
+  \usebibmacro{finentry}%
+}
+
+% Prevent line breaks between author name and label, only relevant for \textcite
+\renewcommand\namelabeldelim{\addnbspace}
+
+% % Handy shortcut to print short-hand citation without author and title, used for errata annotations
+% \newcommand{\mediumcite}[1]{\AtNextCitekey{\clearfield{title}\clearname{author}\clearfield{addendum}\clearfield{issn}}\fullcite{#1}}
+
+
+% ---------------------------------------- Glossary ----------------------------------------
+\usepackage[
+    xindy, % Use xindy to sort the glossary entries
+    nonumberlist, % Do not show the page numbers of entry occurrences in the glossary
+    nopostdot, % No full stop after the description
+    nogroupskip, % No extra vertical space between alphabetical groups
+    toc, % Add the glossary to the table of contents
+    % nolist, % Don't load the list styles if they are not used to reduce overhead
+    style=list, % Default style. The list style puts the name in the optional argument of \item of a description environment. Might not be suitable for glossaries with very long entry names. It works best with long descriptions.
+    % style=altlist, % The altlist style is like the list style but inserts a paragraph break after the name. This style is best suited for entries with long names and long descriptions.
+    notree, % Don't load the index and tree styles if they are not used to reduce overhead
+    % style=index, % Very similar to the list style, but with less vertical space between entries, more hanging identation of the descriptions and using the same font (Charter instead of Roboto) for entry names. Can also be made similiar to the altlist style by \renewcommand{\glstreepredesc}{\par\glstreeitem\parindent\hangindent}
+    nolong, % Don't load the long style if it's not used to reduce overhead
+    % style=long, % The long styles use the longtable environment, use longborder for visual debugging
+    % % style=super, % Use long instead. The super styles use the supertabular environment. Since its package is superseded by the longtable package, the super styles should be avoided.
+    nosuper, % Don't load the glossary-super and supertabular packages to avoid uncessary overhead
+    % nowarn,
+]{glossaries}
+% The first time an entry is used *unsets* the first use flag
+% Hence, use \glsreset{LABEL} to (re)set the first use flag of a glossary entry and print the long form (again) in the next use
+% Use \glsunset{LABEL} to unset the first use flag of a glossary entry and print the short form in the next use
+\makeglossaries % Required with xindy option to make glossaries work
+\renewcommand{\glsnamefont}[1]{\boldmath\rmfamily\textbf{#1}} % Bold math and use roman (serif (not sans-serif)) font for glossary entries (otherwise the math font does not match with the text font (and sans-serif math looked bad))
+% \glsdisablehyper % Disable hyperlinks for glossary entries if desired
+
+\usepackage{enumitem} % For use with list glossary style to modify spacing and indentation in the glossary
+\setlist[description]{leftmargin=1.6cm, labelindent=0cm, labelwidth=1.6cm-0.3cm, labelsep=0.3cm} % For use with list glossary style to modify spacing and indentation in the glossary
+% \setlength{\glsdescwidth}{0.7\linewidth} % For use with long glossary style to set width of the description column in the glossary
+% \renewcommand{\glstreeitem}{\par} % For use with index glossary style to disable hanging indentation in the glossary. To use hanging indentation use \par\hangindent10pt
+% \renewcommand{\glspostdescription}{\vspace{6pt}} % For use with index glossary style to add vertical space after the description in the glossary. Might also remove dots after descriptions if nopostdot is not set.
+
+\glsaddkey % Add a new key to the glossary entries to store the hyphenated form of the entry name, from https://tex.stackexchange.com/a/311882
+    {hyphenated}        % new key
+    {\relax}            % default value if "hyphenated" isn't used in \newglossaryentry
+    {\glsentryhyph}     % analogous to \glsentrytext
+    {\Glsentryhyph}     % analogous to \Glsentrytext
+    {\glshyph}          % analogous to \glstext
+    {\Glshyph}          % analogous to \Glstext
+    {\GLShyph}          % analogous to \GLStext
+
+%\input{Latex-Files/Glossary.tex}
+% !TEX root = ../Dissertation-Kleemann.tex
+% Dissertation of Jörn Kleemann
+% This work © 2024 by Jörn Kleemann <jkleemann@ikp.tu-darmstadt.de> is licensed under CC BY 4.0 (http://creativecommons.org/licenses/by/4.0)
+% SPDX-License-Identifier: CC-BY-4.0
+
+% \newacronym[
+%   description={The Text that is shown in the list of abbreviations}
+% ]{TheInternalKey}{TheAbbreviation}{the long form of the acronym in the text}
+
+\newacronym[
+  description={Isovector giant dipole resonance. See \cref{ch:Introduction}.}
+]{gdr}{GDR}{isovector giant dipole resonance}
+
+\newacronym[
+  description={Nuclear resonance fluorescence. See \cref{ch:Photonuclear-Reactions}.}
+]{nrf}{NRF}{nuclear resonance fluorescence}
+
+\newacronym[
+  description={Elastic nuclear resonance fluorescence. The special \acrshort{es} case of \acrshort{nrf}, in which a nucleus returns to its initial state (usually the ground state) by a single \γ emission after the photoexcitation.}
+]{enrf}{ENRF}{elastic NRF}
+
+\newacronym[
+  description={Elastic scattering. A scattering process in which the total kinetic energy of the system is conserved, and no energy is transferred to internal degrees of freedom of the scattering partners.}
+]{es}{ES}{elastic scattering}
+
+\newacronym[
+  description={Ground state}
+]{gs}{GS}{ground state}
+
+\newacronym[
+  description={Background}
+]{bg}{BG}{background}
+
+\newacronym[
+  description={Proton}
+]{proton}{p}{proton}
+
+\newacronym[
+  description={Neutron}
+]{neutron}{n}{neutron}
+
+\newacronym[
+  description={Breit-Wigner. See \cref{sec:Photoabsorption-Cross-Section}.}
+]{bw}{BW}{Breit-Wigner}
+
+\newacronym[
+  description={Standard Lorentzian. See \cref{sec:Photoabsorption-Cross-Section} for discussion of the SLO model and \cref{eq:GDR-Photoabsorption-Cross-Section-Parametrization} for the SLO parametrization of the \acrshort{gdr}'s photoabsorption cross section.}
+]{slo}{SLO}{standard Lorentzian}
+
+\newacronym[
+  description={Full width at half maximum. The difference between the two values of the independent variable $x$ at which the dependent variable $f(x)$ is equal to half of its maximum value. Hence, for a normal distribution with variance $\sigma^2$, the FWHM is $2\sqrt{2\ln(2)}\sigma\approx2.355\sigma $.}
+]{fwhm}{FWHM}{full width at half maximum}
+
+\newacronym[
+  description={Probability density function}
+]{pdf}{PDF}{probability density function}
+
+\newacronym[
+  description={Highest density interval. The shortest interval containing a given fraction of the probability mass of a distribution. Also known as shortest credible interval. To give an example, the \qty{68.3}{\percent} HDI of a normal distribution with mean $\mu$ and variance $\sigma^2$ is the commonly used 1-$\sigma$ interval $[\mu-\sigma,\mu+\sigma]$.}
+]{hdi}{HDI}{highest density interval}
+
+\newacronym[
+  description={Markov chain Monte Carlo}
+]{mcmc}{MCMC}{Markov chain Monte Carlo}
+
+\newacronym[
+  description={Thomas-Reiche-Kuhn. See \cref{ch:Introduction}.}
+]{trk}{TRK}{Thomas-Reiche-Kuhn}
+
+\newacronym[
+  description={$n$-particle-$n$-hole},
+  name={$n$p-$n$h},
+  sort={np-nh}
+]{1p-1h}{1p-1h}{one-particle-one-hole}
+
+\newacronym[
+  description={Full-energy peak}
+]{fep}{FEP}{full-energy peak}
+
+\newacronym[
+  description={Single-escape peak}
+]{sep}{SEP}{single-escape peak}
+
+\newacronym[
+  description={Double-escape peak}
+]{dep}{DEP}{double-escape peak}
+
+\newacronym[
+  description={Laser-Compton back-scattering. The process of back-scattering laser light off a relativistic electron beam used to produce high energy photon beams. See \cref{sec:LCB-Technique}.}
+]{lcb}{LCB}{laser-Compton back-scattering}
+
+\newacronym[
+  description={The High Intensity \γ-ray Source. A \acrshort{lcb} facility operated by the \acrshort{tunl}. See \cref{sec:HIGS}.}
+]{higs}{HI\texorpdfstring{\ensuremath{{\symup{\gamma}}}}{γ}S}{High Intensity \texorpdfstring{\ensuremath{{\symup{\gamma}}}}{γ}-ray Source} % This is parsed before the \γ command is defined.
+
+\newacronym[
+  description={Upstream target room. The experimental site at \acrshort{higs} at which the experiments of this work were conducted.}
+]{utr}{UTR}{upstream target room}
+
+\newacronym[
+  description={Triangle Universities Nuclear Laboratory. A nuclear physics research laboratory located at Duke University in Durham, North Carolina, USA.}
+]{tunl}{TUNL}{Triangle Universities Nuclear Laboratory}
+
+\newacronym[
+  description={Duke Free Electron Laser Laboratory. A research facility located at Duke University in Durham, North Carolina, USA.}
+]{dfell}{DFELL}{Duke Free Electron Laser Laboratory}
+
+\newacronym[
+  description={Free-electron laser}
+]{fel}{FEL}{free-electron laser}
+
+\newacronym[
+  description={Data acquisition}
+]{daq}{DAQ}{data acquisition}
+
+\newacronym[
+  description={High-purity germanium. A material used in semiconductor detectors for detection of ionizing radiation, such as \γ rays.}
+]{hpge}{HPGe}{high-purity germanium}
+
+% \newacronym[
+%   description={Lanthanum(\rom{3}) bromide doped with cerium. A material used in scintillation  \ce{LaBr_3(Ce)} detectors for \gray\ detection}
+% ]{labr}{\ce{LaBr_3}}{cerium-doped lanthanum(\rom{3}) bromide}
+
+% \newacronym[
+%   description={Cerium(\rom{3}) bromide, a type of scintillation material used in \ce{CeBr_3} detectors for \gray\ detection}
+% ]{cebr}{\ce{CeBr_3}}{cerium(\rom{3}) bromide}
+
+% \newacronym[
+%   description={Electromagnetic}
+% ]{em}{EM}{electromagnetic}
+
+% \newacronym[
+%   description={Isotropic}
+% ]{isotropic}{Iso}{isotropic}
+
+% \newacronym[
+%   description={Experimental}
+% ]{experimental}{Exp}{experimental}
+
+% \newacronym[
+%   description={Resonant}
+% ]{resonant}{Res}{resonant}
+
+% \newacronym[
+%   description={Absorption}
+% ]{absorption}{Abs}{absorption}
+
+% \newacronym[
+%   description={Detector}
+% ]{detector}{Det}{detector}
+
+% \newacronym[
+%   description={Target}
+% ]{target}{T}{target}
+
+% \newacronym[
+%   description={Kinectic}
+% ]{kinectic}{Kin}{kinectic}
+
+% \newacronym[
+%   description={Recoil}
+% ]{recoil}{Rec}{recoil}
+
+% \newglossaryentry{phi}{
+%   sort={phi},
+%   name={$\varphi$},
+%   description={Azimuthal angle}
+% }
+
+% \newglossaryentry{theta}{
+%   sort={theta},
+%   name={$\theta$},
+%   description={Polar angle}
+% }
+
+\newglossaryentry{PiL}{
+  sort={PiL},
+  name={$\Pi L$},
+  description={
+      Multipolarity $L\in\{0,\, 1,\, 2,\, \dots\}$ and electromagnetic radiation character $\Pi\in\{\symup{E},\, \symup{M}\}$.
+      For example, $\symup{E}1$ strength refers to electric dipole strength and an $\symup{M}2$ transition is short for a magnetic quadrupole transition.
+      See also \cref{sec:Selection-Rules-Electromagnetic-Transitions}. % Also, because this refers to the selection rules of electromagnetic transitions with real photons.
+    }
+}
+
+% This is parsed before the \piPar command is defined. Thus the \piPar command is not available here and I just use \pi directly here.
+\newglossaryentry{Jpi}{
+  sort={J1},
+  name={$J^\pi$},
+  description={Spin $J$ and parity $\pi\in\{+,\, -\}$ quantum numbers of a (nuclear) state}
+}
+
+\newglossaryentry{state}{
+  sort={J2},
+  name={$J^\pi_k$},
+  description={State labeled $k$ with spin $J$ and parity $\pi$ of a nucleus. If $k$ is a number and $J$ and $\pi$ concrete values, this refers to the $k$-th state of spin $J$ and parity $\pi$ of a nucleus. For example, \st2+1 is the first state with spin and parity \jp2+. Typical choices for the label variable instead of $k$ are $i$ for an initial state, $x$ for an excited state, $f$ for a final state and $GS$ for the ground state.}
+}
+
+\newglossaryentry{transition}{
+  sort={J3},
+  name={$J^\pi_i\to J^\pi_f$},
+  description={Transition from an initial state $J^\pi_i$ to a final state $J^\pi_f$. Multiple arrows such as $J^\pi_i\to J^\pi_x\to J^\pi_f$ indicate a cascade of transitions.}
+}
+
+\newglossaryentry{Sigma-n}{
+  sort={Sigma-n},
+  name={$\Sigma n$},
+  description={Used as an index to refer to the total photoneutron cross section $\sigma_{\Sigma\text{n}}$ defined in \cref{eq:GDR-Photoabsorption-Cross-Section-Approximation}.}
+}
+
+\newglossaryentry{reaction-notation}{
+  sort={xy},
+  name={($x$,$y$)},
+  text={reaction notation},
+  description={
+      Compact notation for nuclear reactions with incident particle $x$ and outgoing particle(s) $y$.
+      For example, (n,\γ) denotes neutron capture reactions and (\γ,$\γ^\prime$) \acrshort{nrf} reactions.
+      Can also include the target and/or the reaction product in the notation.
+      Examples for this are \Ce{}(\γ,n)\ce{^{139}Ce} and \Sm{}(\γ,p) for photonuclear reactions on \Ce and \Sm, respectively.
+    }
+}
+
+\newglossaryentry{real-photon}{
+  name={Real photon},
+  text={real photon},
+  hyphenated={real-photon},
+  description={A Photon that can exist as a free particle. Used to emphasize the difference to a virtual photon which is only exchanged as an intermediate particle in interactions via the electromagnetic force and doesn't necessarily obey the energy-momentum relation $E=pc$.}
+}
+
+\newglossaryentry{mvme}{
+  name={mvme},
+  text={mvme},
+  description={A ready-to-use \acrshort{daq} system provided by mesytec GmbH \& Co. KG for use with their commercial, off-the-shelf \acrshort{daq} hardware. The mvme software with mesytec hardware was used as the \acrshort{daq} for the experiments of this work. See \cref{sec:DAQ}.}
+}
+
+\newglossaryentry{clover-detector}{
+  name={Clover detector},
+  text={clover detector},
+  description={
+      A type of \acrshort{hpge} semiconductor detector for detection of ionizing radiation, such as \γ rays.
+      It consists of four \acrshort{hpge} crystals arranged in a close $2\times2$ cloverleaf-like geometry along its main axis.
+      Thus, in principle, a clover detector represents four separate \acrshort{hpge} detectors housed in a common cryostat.
+      The individual sub-detectors are referred to as clover leaves and their signals can be read out independently.
+    }
+}
+
+\newglossaryentry{geant4}{
+  name={\textsc{Geant4}},
+  text={\textsc{Geant4}},
+  description={
+      A software toolkit for the computer simulation of the passage of particles through matter developed by the \textsc{Geant4} Collaboration.
+      Based on a Monte-Carlo approach and an extensive data set on electromagnetic, strong and weak interaction processes of particles in matter.
+      See also \cref{sec:Detector-Response-Simulations}.
+    }
+} % Maybe unnecessary, I also don't have entries for HDTV, utr, PyMC, NumPy, ArviZ, etc.
+
+\newglossaryentry{beam-profile}{
+  name={Beam profile},
+  text={beam profile},
+  hyphenated={beam-profile},
+  description={The shape of the spectral density $\frac{\dd \Phi}{\dd E}$ of a photon or particle beam with respect to the energy $E$.}
+}
+
+\newglossaryentry{photon-flux}{
+  name={Photon flux},
+  text={photon flux},
+  plural={photon fluxes},
+  hyphenated={photon-flux},
+  description={
+      The number of photons $\Phi$ passing through the plane perpendicular to the beam direction at the target position in a measurement.
+      Often the term is also used to refer to its temporal density $\frac{\dd \Phi}{\dd t}$, spatial density $\frac{\dd^2 \Phi}{\dd x \dd y}$, spectral density $\frac{\dd \Phi}{\dd E}$ or a combination of these.
+      In this work, total photon flux and the symbol $\Phi$ always refer to the total number of photons and never to a density.
+      If the differences are important, the respective quantity is explicitly stated in text or by its analytical form.
+    }
+}
+
+% \newglossaryentry{photonuclear-reaction}{
+%   name={Photonuclear reaction},
+%   text={photonuclear reaction},
+%   hyphenated={photonuclear-reaction},
+%   description={A nuclear reaction induced by \glspl{real-photon}. See \cref{ch:Photonuclear-Reactions}.}
+% } % I explain photonuclear reaction in the text and it is a standard term (not mathematical notation), that one can easily look up elsewhere (Google). If I included this, I would have to define every other standard term as well (photodisintegration, photoabsorption, photoneutron, photofission, transition strengths, mixed transition, pure transition, multipole mixing ratio, etc.)
+
+% \newglossaryentry{photodisintegration}{
+%   name={Photodisintegration},
+%   text={photodisintegration},
+%   description={A nuclear reaction induced by \glspl{real-photon} in which nucleons are removed from the nucleus. Sometimes also called phototransmutation.}
+% } % Same as with photonuclear reaction
+
+\newglossaryentry{detector-response}{
+  name={Detector response},
+  text={detector response},
+  hyphenated={detector-response},
+  description={
+      The (conditional) probability distributions of the energy deposited in a detector, and thus measured by it, when singular particles, here always photons, are being emitted with a specific energy from the target position of the setup following a specific angular distribution.
+      The detector response to a particular photon energy, hence, describes the shape of the detector's spectrum expected for a respective mono-energetic photon source and, on an absolute scale, the expected number of counts in the spectrum for a given number of emitted photons.
+      Notably, the detector response contains the \acrshort{fep}, \acrshort{sep} and \acrshort{dep} efficiencies.
+      However, resolution effects are not considered part of the detector response in this work.
+      Unless otherwise noted, the angular distribution is implicitly assumed to be isotropic.
+      Often, the term detector response is also used to refer solely to the expected shape of the detector's spectrum or even just those parts of it, which are not the \acrshort{fep}.
+      See also \cref{sec:Detector-Response-Simulations}.
+    }
+}
+
+% I decided on only using the abbreviated (short) forms of acronyms in the glossary descriptions (one can look them up there immediately anyway, and its weird to introduce an acronym in one entry and then use it in the next one, because the reader might not have read the first entry anyway).
+% Thus, make sure to never use \gls and related commands in the glossary descriptions, except for non-acronym glossary entries, and use \acrshort instead.
+
+\glsaddall
+
+
+
+% ---------------------------------------- More packages ----------------------------------------
+\usepackage[version=4]{mhchem}
+\usepackage{xspace}
+\usepackage[capitalise]{cleveref}
+\usepackage{orcidlink}
+% \usepackage[shortcuts]{extdash}
+
+% ---------------------------------------- Tabularray ----------------------------------------
+% WORKAROUND! See https://tex.stackexchange.com/a/614702 and https://github.com/latex3/xcolor/issues/1
+\selectcolormodel{natural}
+\usepackage{ninecolors}
+\selectcolormodel{rgb}
+\usepackage{tabularray} % Offers the best features from all other table packages (booktabs, tabularx, longtable, xltabular) according to Oliver Papst
+\usepackage{tblr-extras} % Necessary to use the caption library with tabularray, which forces tabularray to use the caption style of the document class (left aligned)
+\UseTblrLibrary{
+  booktabs,
+  siunitx,
+  varwidth,
+  caption,
+}
+
+\SetTblrStyle{firstfoot,middlefoot}{\footnotesize\itshape} % Make the footer of talltblr footnotesize and italic (footer is used for the "Continued on next page" text in multi-page tables)
+\SetTblrStyle{note}{\footnotesize} % Make the notes of talltblr footnotesize
+% \DefTblrTemplate{contfoot-text}{twosided}{Continued on next column/page} % Oliver Papst used this, but it is seems unnecessary (maybe only for multi-column tables, which I don't use)
+% \SetTblrStyle{caption}{font=\small} % Also set small font for tabularray captions, not necessary when caption package is used with tabularray
+\SetTblrStyle{capcont}{font=\small} % Also set small font for continued tabularray captions of multi-page tables
+
+\DefTblrTemplate{capcont}{default}{ % Don't repeat table caption on multi-page tables
+  \UseTblrTemplate{caption-tag}{default}\UseTblrTemplate{caption-sep}{default} % On one line to not have a space between "Table x.y" and ":"
+  % \UseTblrTemplate{caption-text}{default}
+  \UseTblrTemplate{conthead-text}{default}
+}
+\DefTblrTemplate{middlehead,lasthead}{default}{ % This shouldn't be necessary, since it should be the default, but for some reason without this the caption is still repeated on the continued multi-page tables when the caption package is used with tabularray
+  \UseTblrTemplate{capcont}{default}
+}
+
+
+
+% ######################################## PDF metadata ########################################
+% To check metadata use exiftool $DROPBOX/TUD/Dissertation/build/Dissertation-Kleemann.pdf
+\hypersetup{
+  linktoc=all, % Make the text in the table of contents clickable, not just the page numbers
+  pdftitle={[en]Probing the Giant Dipole Resonance Using Nuclear Resonance Fluorescence,[de]Untersuchung der Dipol-Riesenresonanz mittels Kernresonanzfluoreszenz},
+  pdfauthor=Jörn Kleemann,
+  pdfsubject={[en]{%
+    This work focuses on the experimental investigation of γ decay of the nuclear isovector giant dipole resonance (GDR).
+    While it is a key property of one of the most fundamental nuclear excitations, it has remained poorly characterized despite decades of research on the GDR.
+    To address this long-standing issue, a novel experimental method to systematically study γ decay of the GDR has been developed in this work.
+    It combines the well-established nuclear resonance fluorescence (NRF) technique with state-of-the-art laser-Compton back-scattering (LCB) photon sources for measurements in the GDR's energy domain.
+    A key innovation lies in the usage of linearly polarized LCB photon beams to excite the GDR.
+    This allows resolving its γ decays to final states close in energy, such as the 2⁺₁ and 0⁺₁ states of deformed nuclei, based on the distinct angular distributions of their NRF reactions.
+    %
+    The newly devised approach was successfully applied in a pilot photonuclear experiment on the GDRs of the semi-magic, spherical nuclide ¹⁴⁰Ce and the well-deformed ¹⁵⁴Sm at the High Intensity γ-ray Source (HIγS) in Durham, NC, USA.
+    Data was taken at six excitation energies, covering the full evolution of the GDRs of these nuclides.
+    For both, a smooth evolution of the γ-decay behavior of their GDRs with energy is observed and the determined γ-decay branching ratios of the order of 1\% are in agreement with previous measurements.
+    The elastic-scattering cross sections are found to be consistent with the interpretation of the GDR as one coherent excitation.
+    For ¹⁴⁰Ce, no γ decay of its GDR to the 2⁺₁ state is detected, resulting in stringent upper limits on this decay channel.
+    Contrarily, for the deformed ¹⁵⁴Sm significant γ decay of its double-humped GDR to the 2⁺₁ state is observed and found to be subject to a strong energy dependence.
+    %
+    The data is well described by the geometrical model of the GDR, demonstrating for the first time its capability to reproduce the GDR's photoabsorption, elastic-scattering, and 2⁺₁ Raman-scattering cross sections simultaneously with great accuracy.
+    This high descriptive power is a novel, compelling argument for the model's validity.
+    Furthermore, γ decay is established as an experimental probe highly sensitive to the structure of the GDR.
+    Finally, this sensitivity is exploited to place strong constraints on the nuclear shape of ¹⁵⁴Sm, including its degree of triaxiality.
+    The derived shape parameters agree well with those of other experimental approaches and recent Monte Carlo Shell-Model calculations.
+  }, [de]{%
+    Diese Arbeit konzentriert sich auf die experimentelle Untersuchung des γ-Zerfalls der nuklearen isovektor Dipol-Riesenresonanz (GDR).
+    Obwohl es sich hierbei um eine Schlüsseleigenschaft einer der fundamentalsten Kernanregungen handelt, blieb das γ-Zerfallsverhalten der GDR trotz jahrzehntelanger Forschung zur GDR größtenteils unbekannt.
+    Um dieses seit langem bestehende Problem endlich anzugehen, wurde in dieser Arbeit eine neue experimentelle Methode zur systematischen Untersuchung des γ-Zerfalls der GDR entwickelt.
+    Sie kombiniert die bewährte Methode der Kernresonanzfluoreszenz (KRF) mit modernsten, auf der Laser-Compton-Rückstreuung (LCB) basierenden Photonenquellen für Messungen im Energiebereich der GDR.
+    Dabei besteht eine wesentliche Innovation in der Verwendung von linear polarisierten LCB-Photonenstrahlen zur Anregung der GDR.
+    Dies ermöglicht die Auflösung ihrer γ-Zerfälle zu energetisch naheliegenden Endzuständen, wie den 2⁺₁ und 0⁺₁ Zuständen deformierter Kerne, durch die charakteristischen Winkelverteilungen ihrer KRF-Reaktionen.
+    %
+    Der neu entwickelte experimentelle Ansatz wurde in einem Pilotexperiment an den GDRs des semi-magischen, sphärischen Nuklids ¹⁴⁰Ce und des wohl-deformierte Nuklids ¹⁵⁴Sm an der High Intensity γ-ray Source (HIγS) befindlich in Durham, NC, USA, erfolgreich angewendet.
+    Dabei wurden Messungen bei sechs Anregungsenergien durchgeführt, welche die gesamte Entwicklung der GDRs dieser Nuklide abdecken.
+    Für beide Nuklide wurde eine glatte Entwicklung des γ-Zerfallsverhaltens ihrer GDRs mit der Anregungsenergie beobachtet und die ermittelten γ-Zerfallsverzweigungsverhältnisse in der Größenordnung von 1\% stimmen mit früheren Messungen überein.
+    Weiterhin sind die gemessenen Wirkungsquerschnitte für elastischen Streuung mit der Interpretation der GDR als eine kohärente Anregung kompatibel.
+    Für ¹⁴⁰Ce wurde kein γ-Zerfall seiner GDR in den 2⁺₁ Zustand beobachtet, was zu strikten oberen Limits für diesen Zerfallskanal führt.
+    Im Gegensatz dazu wurde für das deformierte ¹⁵⁴Sm signifikanter γ-Zerfall seiner aufgespaltenen GDR in den 2⁺₁ Zustand beobachtet, der zudem eine starke Energieabhängigkeit aufweist.
+    %
+    Die Daten können durch das geometrische Modell der GDR gut beschrieben werden, was zum ersten Mal zeigt, dass es in der Lage ist, die Wirkungsquerschnitte der Photoabsorption, der elastischen Streuung und der 2⁺₁-Raman-Streuung der GDR gleichzeitig mit hoher Genauigkeit zu reproduzieren.
+    Diese große Beschreibungsvermögen ist ein neues, überzeugendes Argument für die Gültigkeit des Modells.
+    Darüber hinaus wird der γ-Zerfall als eine experimentelle Observable etabliert, die sehr empfindlich auf die Struktur der GDR ist.
+    Schließlich wird diese Empfindlichkeit ausgenutzt, um starke Aussagen über die Kernform von ¹⁵⁴Sm, einschließlich des Grades seiner Triaxialität, abzuleiten.
+    Die ermittelten Formparameter stimmen gut mit denen anderer experimenteller Ansätze und neuester Berechnungen im Monte-Carlo Schalenmodell überein.
+  }},
+  pdfkeywords={Physics, Nuclear Physics, Nuclear Structure, Nuclear Resonance Fluorescence (NRF), Photonuclear Reactions, Nuclear Photonics, γ-ray Spectroscopy, γ-decay, Giant Dipole Resonance (GDR), Nuclear Shape, Nuclear Deformation, K-Splitting, Geometrical Model, Triaxiality, Nuclear Thomson Scattering, Nuclear Raman Scattering, 154Sm, 140Ce, High Intensity γ-ray Source (HIγS), γ-ray Polarimetry, γ-ray Angular Distribution, Detector Response Deconvolution},
+  pdfdate=2024-12-19,
+  pdfdoi=10.26083/tuprints-00027008,
+  pdfurl={https://tuprints.ulb.tu-darmstadt.de/27008},
+  pdfpublisher={TUprints},
+  pdfidentifier={urn:nbn:de:tuda-tuprints-270081},
+  pdfcontacturl={https://orcid.org/0000-0003-2596-3762},
+  % colorlinks,
+  % linkcolor=blue,
+  % citecolor=blue,
+  % urlcolor=blue,
+}
+
+% Set Metadata `xmpRights:Marked` to true, which, indicates that this is a rights-managed resource. When false, indicates that this is a public-domain resource. Omit if the state is unknown.
+% This causes for example evince to actually show the license in the document properties. Has to be done manually, since hypersetup does not support this (yet).
+\AddToDocumentProperties[document]{copyright}{true}
+
+\usepackage[
+    type={CC},
+    modifier={by},
+    version={4.0},
+    imagemodifier={-eu},
+    hyperxmp=false, % Don't use hyperxmp, since l3pdfmeta is used
+]{doclicense} % Should appear after hypersetup, for correct inclusion of the license in the PDF metadata
+
+
+% ######################################## Settings ########################################
+\ifoot{\headmark} % Put the chapter title in the inner foot
+\binoppenalty=9999 % Avoid line breaks in math mode, see https://tex.stackexchange.com/a/94397
+\relpenalty=9999 % Avoid line breaks in math mode, see https://tex.stackexchange.com/a/94397
+\interfootnotelinepenalty=10000 % Avoid breaking footnotes across pages, see https://tex.stackexchange.com/a/68242
+
+\DeclareTOCStyleEntry[numwidth=2.8em]{tocline}{figure} % Wider labels in figure toc
+
+% As soon as a word has an explicit hyphen TeX assumes it is only allowed to break there. Some words might still be known by babel, but these ones are for sure not. Hence, I have to add them manually (after noticing them causing issues).
+\hyphenation{quasi=mo-no-chro-ma-tic}
+\hyphenation{en-er-gy=de-po-si-tion}
+\babelhyphenation[ngerman]{Zer-falls-ver-zwei-gungs-ver-hält-nisse} % Doesn't work for some reason?
+
+% \overfullrule=10mm % Show overfull boxes more clearly % Removed for final version
+
+% % Adds a draft watermark with the current date to the bottom of every page % Removed for final version
+% \usepackage{eso-pic}
+% \AddToShipoutPictureBG{ % Add "picture" to background of every page
+%     \AtPageLowerLeft{%
+%         \raisebox{2.4\baselineskip}{\makebox[\paperwidth]{\begin{minipage}{\paperwidth}\centering
+%                     Draft [\the\year-\ifnum\month<10\relax0\fi\the\month-\ifnum\day<10\relax0\fi\the\day]
+%                 \end{minipage}}}%
+%     }
+% }
+
+
+% ######################################## Useful commands and definitions ########################################
+\newcommand{\TitleEN}{Probing the Giant Dipole Resonance Using Nuclear Resonance Fluorescence}
+\newcommand{\TitleDE}{Untersuchung der Dipol-Riesenresonanz mittels Kernresonanzfluoreszenz}
+
+\newcommand{\sectionStarWithFooter}[1]{ % Generates a \section* (unnumbered, not in TOC) and manually sets the right footer to this section title
+  \section*{#1}
+  \markright{#1}
+}
+
+\newcommand{\Sm}{\texorpdfstring{\ce{^{154}Sm}}{¹⁵⁴Sm}\xspace}
+\newcommand{\Ce}{\texorpdfstring{\ce{^{140}Ce}}{¹⁴⁰Ce}\xspace}
+\newcommand{\Au}{\texorpdfstring{\ce{^{197}Au}}{¹⁹⁷Au}\xspace}
+\newcommand{\C}{\texorpdfstring{\ce{^{12}C}}{¹²C}\xspace}
+% \newcommand{\Ox}{\texorpdfstring{\ce{^{16}O}}{¹⁶O}\xspace}
+\newcommand{\Si}{\texorpdfstring{\ce{^{28}Si}}{²⁸Si}\xspace}
+\newcommand{\Eu}{\texorpdfstring{\ce{^{152}Eu}}{¹⁵²Eu}\xspace}
+\newcommand{\Co}[1]{\ce{^{#1}Co}\xspace}
+% \newcommand{\γ}{\text{γ}\xspace} % Looks bad in chapter/section headings, which use a different font
+\newcommand{\γ}{\texorpdfstring{\ensuremath{{\symup{\gamma}}}}{γ}\xspace}
+% \newcommand{\β}{\texorpdfstring{\ensuremath{{\symup{\beta}}}}{β}\xspace}
+% \newcommand{\HIGS}{HI\γ{}S\xspace} % Use \gls{higs} instead
+\newcommand{\labr}{\ce{LaBr_3}\xspace}
+\newcommand{\cebr}{\ce{CeBr_3}\xspace}
+% \newcommand{\GEANTFour}{\textsc{Geant4}\xspace} % Use \gls{geant4} instead
+
+\newcommand{\tpth}{\glsdisp{1p-1h}{2p-2h}\xspace}
+\newcommand{\npnh}{\glsdisp{1p-1h}{$n$p-$n$h}\xspace}
+
+\newcommand{\st}[3]{\ensuremath{{#1}^{#2}_{#3}}}
+\newcommand{\jp}[2]{\ensuremath{{#1}^{#2}}}
+\newcommand{\abs}[1]{\ensuremath{\left|#1\right|}}
+\newcommand{\matr}[1]{\symbf{#1}}
+\newcommand{\drmatr}{\symbfcal{R}}
+% \newcommand{\res}[1]{{#1_\text{Res}}}
+\newcommand{\res}[1]{\widehat{#1}} % Used for on-resonance \sigma, E, f, and \lambdabar. \ocirc{#1} is also an option, but looks worse
+\newcommand{\RC}{Y} % Used for the reaction count, alternatives are R, C, or some frak/cal
+\newcommand{\RCv}{\vec{y}} % Used for the binned reaction count
+\newcommand{\eqComma}{\text{,}}
+\newcommand{\eqPeriod}{\text{.}}
+
+
+% \newcommand{\I}{\ensuremath{\symup{i}}} % Imaginary unit % Deprecated, use \complexnum{i} from siunitx package instead
+\newcommand{\dd}{\mathop{}\!\symup{d}} % Differential operator
+\newcommand{\euler}{\symup{e}} % Euler's number
+\newcommand{\piC}{{\symup{\pi}}} % Pi constant
+\newcommand{\piPar}{\pi} % Pi for a parity
+
+% \DeclarePairedDelimiterX\braketOPDoubleBar[3]{\langle}{\rangle}{#1\,\delimsize\Vert\mathopen{}#2\,\delimsize\Vert\mathopen{}#3}%
+
+% lambdabar definition, from https://tex.stackexchange.com/questions/96479
+\usepackage{stackengine,scalerel}
+\def\lambdabar{\ThisStyle{\ensurestackMath{\stackon[-2.4\LMpt]{%
+  \SavedStyle\lambda}{\kern-.5pt\kern\LMpt\rule{1\LMex}{.25pt+.15\LMpt}}}}}
+
+% siunitx in its default settings always uses math mode for numbers and units (unit-mode = math, number-mode = math) regardless of the surrounding mode (text or math), but does switch the math font to its non-italic (upright) mode.
+% Hence, if one wants a "math symbol" to be printed italic as usual for a unit (e.g., the symbol for the speed of light c), one has to enforce the italic mode again using \mathit / \symit.
+% Furthermore, the \ensuremath command is actually not necessary, since math mode is the default mode, but it doesn't hurt to include it either, just in case one configures siunitx to use text or matching mode for units later.
+\DeclareSIUnit\year{a}
+\DeclareSIUnit\barn{b}
+\DeclareSIUnit\elementarycharge{\ensuremath{\symit{e}}}
+\DeclareSIUnit\clight{\ensuremath{\symit{c}}}
+\DeclareSIUnit\planckbar{\ensuremath{\symit{\hbar}}}
+\DeclareSIUnit\photon{\ensuremath{\symup{\gamma}}}
+\DeclareSIUnit\nuclearmagneton{\ensuremath{\symit{\mu}_N}}
+\DeclareSIUnit\nuclearmagnetonsquared{\ensuremath{\symit{\mu}_N^2}}
+\DeclareSIUnit\weisskopf{W.u.}
+\DeclareSIUnit[inter-unit-product = {}]{\inch}{''} % Turns into ″
+% \DeclareSIUnit{\inch}{inch}
+\DeclareSIUnit\permille{\text{\textperthousand}}
+
+\includeonly{ % Use with \include instead of \input to only compile the specified files, while keeping labels, page numbers, etc. from a prior full compilation
+  Latex-Files/Foreword,
+  Latex-Files/Abstracts,
+  Latex-Files/Acknowledgements,
+  Latex-Files/Intro,
+  Latex-Files/Theory,
+  Latex-Files/Experiment,
+  Latex-Files/Analysis,
+  Latex-Files/Results,
+  Latex-Files/Discussion,
+  Latex-Files/Summary,
+  Latex-Files/Spectra-Appendix,
+  Latex-Files/CV,
+}
+
+
+% ######################################## Beginning of document ########################################
+
+
+\input{K:/sps-soft/Formats/Springer_Books/Template/XML_PAG/opposegreek_book.tex}
+\input{K:/sps-soft/Formats/Springer_Books/header/xml_space.tex}
+
+\begin{document}
+
+\title{Introduction: The giant dipole resonance}
+
+\author{\gnm{J{\"o}rn} \fnm{Kleemann}\inst{1",ORC="https://orcid.org/0000-0003-2596-3762}\contact{jkleemann@ikp.tu-darmstadt.de}}
+
+\institute{<OrgID Level="Institution" Type="GRID">grid.6546.1</OrgID>\orgdiv{Technical University of Darmstadt, Department of Physics}\orgname{Institute for Nuclear Physics}\orgadd{\city{Darmstadt}\country{Germany}}}
+
+\maketitle
+
+
+\label{ch:Introduction}
+\IMRADlabel{introduction}
+
+\section[Overview of the GDR and its importance]{Overview of the giant dipole resonance and its importance}
+The photoresponse of atomic nuclei is an elementary aspect of nuclear physics and plays a crucial role in many areas of research, basic and applied, ranging from nuclear structure and astrophysics to reactor design, nuclear non-proliferation and medical-isotope production~\cite{Zilges2022-NRF-Review, Kneissl1996-NRF-Review, Goriely2019-PSF-Database, Tamii2023, Wiedeking2024-PSF-For-Nucleosynthesis, Baldo2016-Photoabsorption-For-Symmety-Energy, Bertozzi2005-NRF-Imaging-Application, Pruet2006-NRF-Imaging-Application, Hayakawa2010-NRF-Imaging-Application, Habs2011-Medical-Radioisotopes,Luo2016-Medical-Radioisotopes}.
+As illustrated in \cref{fig:E1-Strength-Distribution-Sketch}, it is dominated by the isovector giant dipole resonance (GDR), a collective, $\Pi L$ ($\Pi L$) excitation of the nucleus, which involves all its nucleons~\cite{Harakeh2001-Book}.
+In the macroscopic geometrical model, the isovector giant dipole resonance (GDR) corresponds to an out-of-phase oscillation of the protons against the neutrons, while microscopically it is regarded as a collective one-particle-one-hole (1p-1h) excitation built on the ground state~\cite{SpethWambach1991-GDR-Theory,Speth1981-GDR-Review,Harakeh2001-Book}.
+The \gls{gdr} is inherent to all nuclei, except the very lightest~\cite{Harakeh2001-Book}, which, together with its reign over the electric dipole response, makes it one of the most fundamental nuclear excitations, if not the most.
+As such, it allows to probe the elementary structure and dynamics of the complex many-body systems of atomic nuclei and, in particular, their bulk properties, such as shape and symmetry energy~\cite{Harakeh2001-Book}.
+For this reason it also acts as an important benchmark for testing nuclear models and theories.
+
+\begin{figure}[t]
+  \includegraphics{figures/E1-Strength-Distribution-Sketch.pdf}
+  \caption[Sketch of a typical nuclear electric dipole response]{
+    Sketch of a typical electric dipole response expected for a heavy spherical nucleus~\cite{Harakeh2001-Book,Pietralla2024-NRF-Review}.
+    %The electric dipole response is dominated by the \gls{gdr}, which also makes up the majority of the photoabsorption cross section of atomic nuclei in general.
+    The electric dipole response constitutes the majority of the photoabsorption cross section of atomic nuclei and is itself dominated by the \gls{gdr}.
+    As illustrated, the \gls{gdr}, located above the neutron separation threshold $S(\text{n})$, dwarfs all other excitations relevant to the nuclear photoresponse, such as the Pygmy Dipole Resonance~\cite{Savran2013-Pygmy-Review,Bracco2019-Pygmy-Review} and the two-phonon state~\cite{Zilges2022-NRF-Review,Kneissl2006-NRF-Review}.
+  }
+  \label{fig:E1-Strength-Distribution-Sketch}
+\end{figure}
+
+The excitation energy of the \gls{gdr} typically lies between \qtyrange{10}{30}{\MeV}~\cite{Harakeh2001-Book,BermanFultz1975-GDR-CS-Measurements-Review}, depending smoothly on the mass number of the nucleus, as typical for a collective excitation.
+It usually appears as a pronounced Lorentzian peak in the photoabsorption cross section of spherical nuclei with widths of several \unit{\MeV}~\cite{BermanFultz1975-GDR-CS-Measurements-Review,DietrichBerman1988-GDR-CS-Measurements-Review}.
+In heavy, deformed nuclei, a clear splitting of the \gls{gdr} into two overlapping Lorentzians is observed. %, as evident for \Sm in \cref{fig:GDR-Splitting-Evolution-Sm-Isotopes}.
+The phenomenon is evident for \Sm in \cref{fig:GDR-Splitting-Evolution-Sm-Isotopes}.
+% This phenomenon is apparent in \cref{fig:GDR-Splitting-Evolution-Sm-Isotopes}, which shows total photoneutron cross sections of samarium isotopes.
+% evolution of the \gls{gdr} in the total photoneutron cross section of samarium isotopes is depicted.
+\begin{figure}
+  \includegraphics{figures/GDR-Splitting-Evolution-Sm-Isotopes.pdf}
+  \caption[Evolution of the splitting of the GDR in samarium isotopes]{
+    % $K$ splitting of the \gls{gdr} is clearly observed for the deformed \Sm, while the spherical \ce{^{144}Sm} shows a single Lorentzian resonance peak.
+    Experimental total photoneutron cross sections of samarium isotopes.
+    The $K$ splitting of the \gls{gdr} emerges as the deformation increases with mass number from the semi-magic, spherical \ce{^{144}Sm} to the well-deformed \Sm.
+    The data, measured by \textcite{Carlos1974-GDR-CS-154Sm}, was retrieved from the EXFOR database~\cite{EXFOR,EXFOR-Interface} and has been offset in magnitude across the isotopes for better visibility.
+  }
+  \label{fig:GDR-Splitting-Evolution-Sm-Isotopes}
+\end{figure}
+This splitting is considered one of the prime signatures of nuclear deformation~\cite{Davidson1965-Rotations-Vibrations-Deformed-Review}.
+It is easily understood in the geometrical model, where an axial deformation of the nucleus allows the oscillation of protons and neutrons against each other either along the nuclear symmetry axis or perpendicular to it~\cite{GoldhaberTeller1948-GDR-Hydrodynamic-Model,SteinwedelJensen1950-GDR-Hydrodynamic-Model,JensenJensen1950-GDR-Hydrodynamic-Model,SteinwedelJensenJensen1950-GDR-Hydrodynamic-Model}.
+Since the axes have different lengths, the frequencies of the oscillations differ, and therefore, the \gls{gdr} splits into two peaks with a stronger splitting for stronger deformations~\cite{Danos1958-GDR-Splitting-Model,Okamoto1958-GDR-Splitting-Model}.
+One commonly assigns $K$-quantum numbers\footnote{
+  The $K$-quantum number gives the projection of the angular momentum $\vec{J}$ onto the symmetry axis of the nucleus.
+  Consequently, it is only a good quantum number in the case of axially symmetric nuclei~\cite{DavydovFilippov1958-Triaxiality}.
+} $K=0$ and $K=1$ to these two oscillation modes, reflecting the geometric interpretation of the distinct oscillation axes~\cite{Harakeh2001-Book}.
+The $K=0$ mode corresponds to the oscillation along the symmetry axis, while the $K=1$ mode corresponds to the oscillation perpendicular to it.
+Naturally, in triaxial nuclei, the \gls{gdr} is expected to split into three peaks, corresponding to the three possible oscillation modes along the three principal, now distinct, axes of the nucleus.
+The photoabsorption cross section $\sigma_\text{Abs}$ is therefore usually parametrized by a sum of up to three standard Lorentzians (SLOs)~\cite{Harakeh2001-Book,BermanFultz1975-GDR-CS-Measurements-Review}, i.e.,
+\begin{equation}\label{eq:GDR-Photoabsorption-Cross-Section-Parametrization}
+  \sigma_\text{Abs}(E) = \sum_{k=1}^{3} \sigma^\text{SLO}_k(E) = \sum_{k=1}^{3} \frac{{\res{\sigma}}_k }{1+\left(\frac{E^2 - {\res{E}}_k^2}{E \Gamma_k}\right)^2} \eqComma
+\end{equation}
+where ${\res{E}}_k$, $\Gamma_k$ and ${\res{\sigma}}_k$ are the resonance energy, the full width at half maximum (FWHM) and the on-resonance photoabsorption cross section of the respective sub-resonances and $E$ the incident photon energy.
+Due to the similar nature of the sub-resonances in the geometrical picture, it is expected that the energy-integrated photoabsorption cross sections
+\begin{equation}
+  \int \sigma^\text{SLO}_k(E) \dd E=\frac{\piC}{2} {\res{\sigma}}_k \Gamma_k
+\end{equation}
+of the three principal sub-resonances have similar magnitudes.
+In axially deformed nuclei this leads to the expectation of a $2:1$ ratio of the $K=1$ and $K=0$ sub-resonances, which is indeed in rough agreement with experimental data~\cite{Harakeh2001-Book}.
+% If it were possible to separate the sub-resonances, the \gls{gdr} would allow to probe otherwise hard to constrain triaxiality in nuclei. However from photoabsorption cross section data alone, this is not trivial.
+
+A benchmark for the integrated photoabsorption cross section of a resonance is the Thomas-Reiche-Kuhn (TRK) sum rule~\cite{Thomas1925-TRK-Sum-Rule,Kuhn1925-TRK-Sum-Rule,ReicheThomas1925-TRK-Sum-Rule}.
+The Thomas-Reiche-Kuhn (TRK) sum rule gives an idealized theoretical limit of the integrated $\Pi L$ ($\Pi L$) photoabsorption cross section of a nucleus with $Z$ protons and $N$ neutrons~\cite{Harakeh2001-Book,Speth1981-GDR-Review}.
+It states
+\begin{equation}
+  \int_0^\infty \sigma^{\symup{E}1}_\text{Abs}(E) \dd E = \frac{2 \piC^2 \, \unit{\elementarycharge\squared} \, \hbar c}{4\piC \epsilon_0 \, m_\text{N} c^2}\frac{Z \, N}{N+Z} \approx 60 \frac{Z \, N}{N+Z}\,\unit{\MeV \milli\barn}
+\end{equation}
+in SI units, where $\sigma^{\symup{E}1}_\text{Abs}(E)$ is the \glsdisp{PiL}{$\symup{E}1$} photoabsorption cross section at photon energy $E$, $m_\text{N}$ is the average nucleon mass, and $\epsilon_0$ is the vacuum permittivity.
+The \gls{gdr} usually exhausts \qty{100}{\percent} or more\footnote{
+  The \gls{trk} sum rule underestimates the \glsdisp{PiL}{$\symup{E}1$} limit due to the omission of neutron-proton exchange contributions.
+  To account for these, the sum rule is usually corrected by multiplying it by a factor of $(1+\kappa)$~\cite{Speth1981-GDR-Review}, where $\kappa$ is the so-called enhancement factor, which ranges from about \qtyrange{0}{30}{\percent} according to experimental data~\cite{BermanFultz1975-GDR-CS-Measurements-Review}.
+} of this sum rule, which justifies its designation as a giant resonance.
+
+Finally, due to its location above the particle separation thresholds, the \gls{gdr} is particle unbound and decays predominantly through particle emission~\cite{BermanFultz1975-GDR-CS-Measurements-Review}.
+For medium and heavy nuclei neutron emission is by far the dominant decay channel due to their rather high Coulomb barriers.
+Therefore, the photoabsorption cross section of the \gls{gdr} is commonly approximated by the total photoneutron cross section $\sigma_{\Sigma \text{n}}$ in these cases, i.e. by
+\begin{equation}\label{eq:GDR-Photoabsorption-Cross-Section-Approximation}
+  \sigma_\text{Abs}(E) \approx \sigma_{\Sigma \text{n}}(E) \coloneqq \sum_{k=1}^\infty \left(\sigma_{(\Î³,k\,\text{n})} + \sum_{X\neq\text{n}} \sigma_{(\Î³,k\,\text{n}+X)}\right)\eqComma
+\end{equation}
+where $X$ denotes any particle or combination of particles not including neutron (n).
+In this approximation the contributions of any non-neutron-emitting photonuclear reactions to the photoabsorption cross section are neglected.
+The photoabsorption cross section of the \gls{gdr} has been extensively studied in a vast number of experiments throughout the entire nuclear chart~\cite{BermanFultz1975-GDR-CS-Measurements-Review,DietrichBerman1988-GDR-CS-Measurements-Review}.
+A majority of the data was obtained from photoneutron measurements using Real photon (real photon) beams and the approximation of \cref{eq:GDR-Photoabsorption-Cross-Section-Approximation}.
+
+Still, the \gls{gdr} is known to also decay internally by \Î³ emission with a branching ratio of about \qty{1}{\percent}~\cite{Beene1990-GDR-208Pb-Gamma-Branching,Boretzky1996-GDR-208Pb-Gamma-Branching,Hass1971-GDR-NRF-ng-Source,BarNoyMoreh1974-GDR-NRF-ng-Source,Jackson1975-GDR-NRF-ng-Source,FullerHayward1962-GDR-NRF-Bremsstrahlung,NathanMoreh1980-GDR-NRF-Tagger,HoblitNathan1991-GDR-NRF-Tagger}.
+Although the effect of this decay branch on the photoabsorption cross section may be small, its implications on the structure of the resonance are profound.
+The \Î³-decay behavior is a fundamental aspect that provides a unique window into the internal structure of the \gls{gdr} and, therefore, also the nucleus as a whole.
+In particular, the geometrical model of the \gls{gdr} makes explicit predictions about its \Î³-decay behavior to the $J^\piPar=\jp2+$ and \jp0+ members of the ground-state band~\cite{Baldin1960-GDR-NRF-Theory,Hayward1970-Book-Photonuclear-Reactions,MaricMoebius1959-GDR-NRF-CS-Theory,FullerHayward1962-GDR-NRF-Bremsstrahlung}.
+These predictions are parameter-free with respect to a given photoabsorption cross-section parameterization and therefore provide an opportunity for a stringent test of the model, especially in the case of deformed nuclei, where its predictions are the most distinct and the model itself is the most regarded~\cite{Harakeh2001-Book}.
+Yet, despite its importance and decades of research on the \gls{gdr}, the \Î³ decay is still scarcely studied.
+Only a few experiments have been conducted to investigate it, paling in comparison to the vast number of photoneutron experiments.
+Moreover, the few available measurements either cover only low \gls{gdr} excitation energies~\cite{Hass1971-GDR-NRF-ng-Source,BarNoyMoreh1974-GDR-NRF-ng-Source,Jackson1975-GDR-NRF-ng-Source} or suffer from insufficient resolution and statistics~\cite{FullerHayward1962-GDR-NRF-Bremsstrahlung,NathanMoreh1980-GDR-NRF-Tagger,HoblitNathan1991-GDR-NRF-Tagger}.
+Thus, a comprehensive experimental assessment of the \Î³-decay behavior of the \gls{gdr} and its energy evolution is still missing.
+In particular, for deformed nuclei, the evolution of the \Î³-decay branching ratios to the \st2+1 and \st0+1 states remains unmeasured, leaving the predictions by the geometrical model of the \gls{gdr} for these observables largely untested.
+This is because until the recent advent of laser-Compton back-scattering (LCB) photon sources~\cite{Weller2009-HIGS,Howell2021-HIGS2-Workshop-Whitepaper,Weller2015-HIGS-NuclPhysNews,Hajima2016-LCS-Sources}, offering \unit{\MeV}-ranged photon beams with unprecedented intensity, polarization, and energy resolution, it has simply been impossible to efficiently excite the \gls{gdr} in narrow, freely selectable energy regions to study its \Î³ decay with high resolution and statistics.
+To address this long-standing issue, it is the purpose of this work to pioneer a novel experimental approach to systematically study the \Î³ decay of the \gls{gdr} of both spherical and deformed nuclei, thereby launching a new experimental campaign in \gls{gdr} research using state-of-the-art laser-Compton back-scattering (LCB) photon sources.
+
+
+\section[A brief history of the GDR]{A brief history of the giant dipole resonance}
+The \gls{gdr} was already discovered in the early days of nuclear physics~\cite{BotheGentner1937,BaldwinKlaiber1947,BaldwinKlaiber1948} and has since continuously attracted a great deal of attention~\cite{Harakeh2001-Book,Speth1981-GDR-Review,BermanFultz1975-GDR-CS-Measurements-Review,DietrichBerman1988-GDR-CS-Measurements-Review,Bortignon2019-Book-Giant-Resonances-Finite-Temperature,Goriely2019-PSF-Database}.
+
+First hints of the \gls{gdr} were found in 1937 by W.~Bothe and W.~Gentner~\cite{BotheGentner1937} when they studied nuclear transmutation induced by \qty{17}{\MeV} \Î³ rays for various samples.
+Based on the strong variance they observed in the photodisintegration cross sections across different nuclei, they hypothesized that resonance phenomena might be involved in the process.
+
+N.~Bohr further elaborated on this hypothesis in 1938~\cite{Bohr1938-GDR-Photoeffect}.
+In particular, he showed that a resonance in the photoabsorption cross section is not in contradiction to the compound-nucleus model, which was widely used at the time to explain neutron-induced reactions.
+
+In 1944 A.~Migdal published a hydrodynamical theory, which explicitly predicted the existence of a collective nuclear dipole resonance at energies above the neutron separation threshold~\cite{Migdal1944,IshkhanovKapitonov2021-GDR-History-Midgal}.
+However, his work was not widely recognized at the time.
+
+The first clear observation of the \gls{gdr} was reported by G.~C.~Baldwin and G.~S.~Klaiber in 1946~\cite{BaldwinKlaiber1947,BaldwinKlaiber1948}.
+A new betatron electron accelerator enabled them to produce continuous Bremsstrahlung radiation with an endpoint energy up to \qty{100}{\MeV}.
+With this tunable photon source, they measured the energy dependence of the cross sections of uranium and thorium photofission as well as \C and \ce{^{63}Cu} (\Î³,n) photodisintegration.
+In all four cases, a similar resonance peak in the cross sections was observed with centroid energies ranging from about \qty{15}{\MeV} for uranium to \qty{30}{\MeV} for \C.
+
+Unaware of Migdal's publication, M.~Goldhaber and E.~Teller~\cite{GoldhaberTeller1948-GDR-Hydrodynamic-Model} independently proposed a similar hydrodynamical model to explain this new resonance phenomenon shortly after, which was then regarded as the first theoretical explanation of the \gls{gdr}.
+Assuming that the nucleus behaves like a macroscopic drop of proton and neutron fluids, the \gls{gdr} was interpreted as a collective isovector dipole oscillation of these two fluids against each other, resonantly excited by photoabsorption in the experiments by Baldwin and Klaiber.
+In such a geometrical model, the \gls{gdr} must be a universal feature of all nuclei, since no microscopical structure details of the nucleus are considered.
+The excitation energy scales inversely with the radius of the nucleus, and thus inversely with the cube root of its mass number.
+The resonance width is understood in analogy to frictional damping of the collective motion.
+
+H.~Steinwedel, J.~H.~D.~Jensen and P.~Jensen further built on this model in 1950~\cite{SteinwedelJensen1950-GDR-Hydrodynamic-Model,JensenJensen1950-GDR-Hydrodynamic-Model,SteinwedelJensenJensen1950-GDR-Hydrodynamic-Model}.
+Goldhaber and Teller had effectively modeled the oscillation of two interpenetrating rigid spheres, which required an arbitrary parameter for the restoring force and changes in total nucleon density.
+Steinwedel, Jensen, and Jensen, however, considered the oscillation of proton against neutron fluid within a common volume of fixed shape.
+While Goldhaber and Teller had previously noted this as a potential alternative treatment, Steinwedel, Jensen and Jensen showed that, in this approach, the restoring force of the oscillation can be derived from the nuclear symmetry energy already known from the semi-empirical Bethe-WeizsÃ¤cker mass formula.
+
+The next major step in the development of the geometrical, collective model of the \gls{gdr} was the work by M.~Danos and K.~Okamoto in 1958~\cite{Danos1958-GDR-Splitting-Model,Okamoto1958-GDR-Splitting-Model}.
+They both independently concluded that the \gls{gdr} of axially deformed nuclei should split into two overlapping sub-resonances of different energies, corresponding to the oscillation modes along and perpendicular to the symmetry axis of the nucleus.
+% This is due to the nuclear deformation allowing the oscillation of protons and neutrons against each other either along the nuclear symmetry axis or perpendicular to it.
+% Since the axes have different lengths, the frequencies of the oscillations are different and therefore the \gls{gdr} splits into two peaks with a stronger splitting for stronger deformations.
+This provided an explanation for the previously observed splitting of the \gls{gdr} in the photoabsorption cross sections of deformed nuclei compared to spherical ones.
+
+Since then, numerous aspects of the \gls{gdr} have been studied across many nuclei, both experimentally and through macroscopic and microscopic theories.
+% In particular, the photoabsorption cross section of the \gls{gdr} has been extensively measured~\cite{BermanFultz1975-GDR-CS-Measurements-Review,DietrichBerman1988-GDR-CS-Measurements-Review} throughout the entire nuclear chart.
+% A bulk of these data were obtained through photoneutron measurements employing \gls{real-photon} beams.
+In addition to the \gls{gdr}, several other giant resonances have been found in nuclei, such as the isoscalar giant quadrupole resonance~\cite{Harakeh2001-Book}.
+Furthermore, analogues to the nuclear \gls{gdr} were identified in other multiparticle systems~\cite{Connerade1987-Book-Giant-Resonances-Other-Systems} such as atoms~\cite{Ederer1964-GDR-Analogues-Atoms,Lukirskii1964-GDR-Analogues-Atoms,Samson1966-GDR-Analogues-Atoms,Wendin1973-GDR-Analogues-Atoms,Shiner2011-GDR-Analogues-Atoms,Pabst2013-GDR-Analogues-Atoms}, metallic clusters~\cite{Heer1987-GDR-Analogues-Metallic-Clusters,Hoheisel1988-GDR-Analogues-Metallic-Clusters,Tiggesbaeumker1992-GDR-Analogues-Metallic-Clusters}, and fullerenes~\cite{Gensterblum1991-GDR-Analogues-Fullerenes,Hertel1992-GDR-Analogues-Fullerenes}.
+
+Still, despite decades of research on the nuclear \gls{gdr}, many questions remain unanswered.
+What is the true microscopic structure of the \gls{gdr}?
+How do the current microscopic and macroscopic models relate to each other and its true structure?
+What is its lifetime, and does it vary across the energy range of the \gls{gdr}?
+What role does internal decay play compared to particle emission?
+How does the decay behavior of the \gls{gdr} evolve as a function of excitation energy?
+These are just a few of the unresolved questions.
+To address them, more work is needed from both, the experimental and the theoretical side.
+New experimental data are needed to challenge and refine current theories, ultimately deepening our understanding of the \gls{gdr} and the nucleus as a whole.
+This work seeks to contribute to these efforts by developing and applying a novel method to measure the \Î³ decay of the \gls{gdr}. %, a fundamental property that so far had remained poorly characterized.
+
+
+\section{Objectives and structure of this work}
+\label{sec:Introduction-Objectives}
+As previously stated, this work focuses on the investigation of hitherto hardly studied \Î³ decay of the \gls{gdr}.
+Its goal is to establish the \Î³ decay as an experimental observable sensitive to the internal structure of the \gls{gdr} of spherical and deformed nuclei and thereby the nuclei themselves.
+In particular, one of the main purposes of this work is to resolve the \Î³ decays of the \gls{gdr} to the \st2+1 and \st0+1 states at arbitrary excitation energies of the \gls{gdr} and, thus for the first time, measure their individual energy evolution in a deformed nucleus.
+This will enable a long-overdue, rigorous experimental test of the geometrical model of the \gls{gdr} through its predictions on the \Î³-decay branching ratios of the \gls{gdr} to the ground-state band.
+
+To this end, first a novel experimental approach to measure \Î³ decay of the \gls{gdr} has to be developed, surpassing the limitations of previous experiments.
+This is achieved by combining the established nuclear resonance fluorescence (NRF) and photoactivation techniques with state-of-the-art \gls{lcb} photon sources in the \gls{gdr}'s energy domain.
+\Gls{lcb} photon beams enable a selective and efficient photoexcitation of the \gls{gdr} within narrow, freely tunable energy regions.
+Its \Î³ decay in the induced nuclear resonance fluorescence (NRF) reactions can then be measured with high resolution and statistics.
+The ability to conduct such measurements at arbitrary excitation energies allows for a systematic study of this observable's evolution with energy across the entire \gls{gdr}.
+To resolve \Î³ decays to final states close in energy, such as the \st2+1 and \st0+1 states of deformed nuclei where the decay signals overlap and cannot be energy-resolved, linearly polarized \gls{lcb} photon beams are utilized.
+Excitation of the \gls{gdr} with linearly polarized photon beams results in distinct angular distributions of its \Î³ decays to various states, allowing for the experimental disentanglement of these overlapping signals.
+% A linear polarization of the \gls{lcb} photon beams allows disentanglement of \Î³ decays to states close in energy, based on their unique angular distributions in this case, even when the decay signals overlap and cannot be energy-resolved.
+Finally, simultaneous photoactivation measurements are employed to calibrate the Photon flux (photon flux), enabling the determination of absolute \Î³-decay cross sections from the \gls{nrf} data.
+
+% Specifically, a main goal is to resolve the \Î³ decays of the \gls{gdr} to the \st2+1 and \st0+1 states and, thus for the first time, measure their individual energy evolutions in a deformed nucleus through this novel method.
+The next milestone is to apply this experimental approach to study the \Î³-decay behavior of the \gls{gdr} for spherical and deformed even-even nuclei.
+% Thus, experiments on the spherical \Ce and the deformed \Sm have been conducted at the \gls{higs} at the \gls{tunl} in Durham, North Carolina, USA, for the pilot study.
+Thus, experiments have been conducted at the High Intensity \texorpdfstring{\ensuremath{{\symup{\gamma}}}}{γ}-ray Source (HI\texorpdfstring{\ensuremath{{\symup{\gamma}}}}{γ}S) at the Triangle Universities Nuclear Laboratory (TUNL) in Durham, North Carolina, USA.
+The nuclei that have been selected for the pilot study are the deformed \Sm and the semi-magic, spherical \Ce.
+Data have been collected for both rare-earth nuclei at six excitation energies, covering the full evolution of their \glspl{gdr}.
+The analysis of this data to extract the \Î³-decay behavior of their \glspl{gdr} constitutes the core of this work.
+Building on the success of the pilot study, a follow-up experiment has furthermore been conducted on the deformed \ce{^{232}Th} and the doubly magic, spherical \ce{^{208}Pb} extending the \gls{gdr} research campaign from the rare-earth to the actinide region of the nuclear chart.
+However, the data from these experiments have yet to be analyzed and will be the subject of future studies.
+
+Finally, the implications of the \Ce and \Sm experimental data on the nature of their \glspl{gdr} and the nuclei themselves are discussed.
+In particular, the long-overdue, rigorous test of the geometrical model of the \gls{gdr} is performed by comparing the novel \gls{gdr} \Î³-decay data to the model's predictions, thus accomplishing the final objective of this work.
+
+The subsequent chapters follow these objectives.
+First, the basic physics of photonuclear reactions and their application as an experimental technique are introduced in \cref{ch:Photonuclear-Reactions}, focusing on \gls{nrf} as the photonuclear reaction most relevant to this work.
+This includes a discussion of the peculiarities of performing \gls{nrf} experiments on the \gls{gdr} due to interference effects, and the predictions of the geometrical model on the \gls{gdr}'s \Î³-decay behavior.
+\Cref{ch:Experiment} begins with a brief overview of the \gls{lcb} technique and the High Intensity \texorpdfstring{\ensuremath{{\symup{\gamma}}}}{γ}-ray Source (HI\texorpdfstring{\ensuremath{{\symup{\gamma}}}}{γ}S) facility implementing this technique, followed by a detailed description of the experimental approach developed to measure \Î³ decay of the \gls{gdr} via \gls{nrf} reactions induced by \gls{lcb} photon beams.
+This chapter also covers the pilot experiment on \Ce and \Sm realized with this approach.
+\Cref{ch:Analysis} then elaborates on the data analysis of this experiment, culminating in the extraction of the \Î³-decay branching ratios of the \glspl{gdr} of these nuclei to their \st2+1 and \st0+1 states from the measured \gls{nrf} spectra.
+% as well as absolute cross sections for respective \gls{nrf} reactions on their \glspl{gdr}.
+The results of this analysis on the \Î³ decay of the \Ce and \Sm \glspl{gdr} are presented in \cref{ch:Results} and discussed in \cref{ch:Discussion-and-Interpretation}.
+In particular, \cref{ch:Discussion-and-Interpretation} compares the experimental results to the predictions of the geometrical model of the \gls{gdr} on its \Î³-decay behavior.
+Finally, \cref{ch:Summary-and-Outlook} concludes this work with a summary and outlook.
+
+The complete dataset and analysis codes at the core of this work are openly accessible in Ref.~\cite{Kleemann2024-154Sm-GDR-TUdatalib-Repository} via the TUdatalib repository of Technische UniversitÃ¤t Darmstadt, enabling full reproduction of all results.
+Furthermore, parts of this work were published in Ref.~\cite{Kleemann2024-154Sm-GDR}.
+
+% CONSIDER: K Figure? Figure of \gls{gdr} in geometrical model?
+
+  \sectionStarWithFooter{Bibliography excerpt for \cref*{ch:Introduction}}
+  \printbibliography[segment=\therefsegment, heading=none]
+\end{refsegment}
+\begin{refsegment}
+%  \include{Latex-Files/Theory.tex}
+% !TEX root = ../Dissertation-Kleemann.tex
+% Dissertation of JÃ¶rn Kleemann
+% This work Â© 2024 by JÃ¶rn Kleemann <jkleemann@ikp.tu-darmstadt.de> is licensed under CC BY 4.0 (http://creativecommons.org/licenses/by/4.0)
+% SPDX-License-Identifier: CC-BY-4.0
+
+\end{document}
